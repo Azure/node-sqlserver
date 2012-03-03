@@ -1,0 +1,5 @@
+{
+  "name": "mssql",
+  "version": "0.0.0",
+  "main": "sql.js"
+}
