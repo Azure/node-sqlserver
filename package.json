@@ -1,5 +1,5 @@
 {
   "name": "mssql",
-  "version": "0.0.0",
-  "main": "sql.js"
+  "version": "0.0.1",
+  "main": "./lib/sql.js"
 }
