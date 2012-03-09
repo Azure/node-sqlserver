@@ -51,8 +51,8 @@ namespace mssql
             { 
                 return false; 
             }
-            if (!SQL_SUCCEEDED(ret))
-            {
+            if (!SQL_SUCCEEDED(ret)) 
+            { 
                 connection.Throw();  
             }
 
@@ -419,6 +419,22 @@ namespace mssql
         return TryExecute(L"");
     }
 
+    bool OdbcConnection::TryBeginTran( void )
+    {
+        // turn off autocommit
+        SQLRETURN ret = SQLSetConnectAttr( connection, SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>( SQL_AUTOCOMMIT_OFF ),
+                                           SQL_IS_UINTEGER );
+        if (ret == SQL_STILL_EXECUTING) 
+        { 
+            return false; 
+        }
+        if (!SQL_SUCCEEDED(ret)) 
+        { 
+            statement.Throw();  
+        }
+        return true;
+    }
+
     bool OdbcConnection::TryEndTran(SQLSMALLINT completionType)
     {
         SQLRETURN ret = SQLEndTran(SQL_HANDLE_DBC, connection, completionType);
@@ -430,6 +446,21 @@ namespace mssql
         { 
             statement.Throw();  
         }
+
+        // put the connection back into auto commit mode
+        ret = SQLSetConnectAttr( connection, SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>( SQL_AUTOCOMMIT_ON ),
+                                           SQL_IS_UINTEGER );
+        // TODO: This will not work because calling into TryEndTran again from the callback will fail
+        // when the completion has already finished.
+        if (ret == SQL_STILL_EXECUTING) 
+        { 
+            return false; 
+        }
+        if (!SQL_SUCCEEDED(ret)) 
+        { 
+            statement.Throw();  
+        }
+
         return true;
     }
 

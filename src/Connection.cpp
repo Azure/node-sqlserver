@@ -22,6 +22,7 @@ namespace mssql
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "query", Connection::Query);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "readRow", Connection::ReadRow);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "readColumn", Connection::ReadColumn);
+        NODE_SET_PROTOTYPE_METHOD(constructor_template, "beginTransaction", Connection::BeginTransaction);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit", Connection::Commit);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollback", Connection::Rollback);
 
@@ -32,33 +33,44 @@ namespace mssql
     {
         HandleScope scope;
 
-        Local<Object> callback = args[1].As<Object>();
+        Local<Object> callback = args[0].As<Object>();
 
         Connection* connection = Unwrap<Connection>(args.This());
 
-        return scope.Close<Value>(connection->innerConnection->Close(callback));
+        return scope.Close<Value>(connection->innerConnection->Close( callback ));
+    }
+
+    Handle<Value> Connection::BeginTransaction(const Arguments& args)
+    {
+        HandleScope scope;
+
+        Local<Object> callback = args[0].As<Object>();
+
+        Connection* connection = Unwrap<Connection>(args.This());
+
+        return scope.Close<Value>(connection->innerConnection->BeginTransaction( callback ));
     }
 
     Handle<Value> Connection::Commit(const Arguments& args)
     {
         HandleScope scope;
 
-        Local<Object> callback = args[1].As<Object>();
+        Local<Object> callback = args[0].As<Object>();
 
         Connection* connection = Unwrap<Connection>(args.This());
 
-        return scope.Close<Value>(connection->innerConnection->Commit(callback));
+        return scope.Close<Value>(connection->innerConnection->Commit( callback ));
     }
 
     Handle<Value> Connection::Rollback(const Arguments& args)
     {
         HandleScope scope;
 
-        Local<Object> callback = args[1].As<Object>();
+        Local<Object> callback = args[0].As<Object>();
 
         Connection* connection = Unwrap<Connection>(args.This());
 
-        return scope.Close<Value>(connection->innerConnection->Rollback(callback));
+        return scope.Close<Value>(connection->innerConnection->Rollback( callback ));
     }
 
     Handle<Value> Connection::New(const Arguments& args) {

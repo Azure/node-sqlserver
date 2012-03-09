@@ -1,5 +1,11 @@
 {
   "name": "mssql",
+  "description": "Microsoft Driver for Node.js for SQL Server",
+  "author": "Microsoft Corp.",
   "version": "0.0.1",
-  "main": "./lib/sql.js"
+  "main": "./lib/sql.js",
+  "devDependencies": {
+     "mocha" : "0.14.x",
+     "async" : "0.1.x"
+  }
 }
