@@ -67,6 +67,25 @@ suite( 'txn', function() {
         done();
     });
 
+    test('begin a transaction and rollback with no query and no callback', function( done ) {
+
+        try {
+
+            conn.beginTransaction();
+
+            conn.rollback( function( err ) {
+                assert.ifError( err );
+                done();
+            });
+        }
+        catch( e ) {
+
+            assert.ifError( e );
+        }
+
+    });
+
+
     test('begin a transaction and commit', function( test_done ) {
 
         conn.beginTransaction( function( err ) { 
