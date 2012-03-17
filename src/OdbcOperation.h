@@ -151,8 +151,6 @@ namespace mssql
 
     class CloseOperation : public OdbcOperation
     {
-    private:
-
     public:
         CloseOperation(shared_ptr<OdbcConnection> connection, Handle<Object> callback)
             : OdbcOperation(connection, callback)
@@ -174,8 +172,6 @@ namespace mssql
 
     class BeginTranOperation : public OdbcOperation
     {
-    private:
-
     public:
         BeginTranOperation(shared_ptr<OdbcConnection> connection, Handle<Object> callback )
             : OdbcOperation(connection, callback)
