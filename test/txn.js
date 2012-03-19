@@ -53,18 +53,14 @@ suite( 'txn', function() {
 
     teardown( function(done) {
 
-        conn.close( function( err ) { assert.ifError( err ); });
-
-        done();
+        conn.close( function( err ) { assert.ifError( err ); done(); });
     });
 
     test('begin a transaction and rollback with no query', function( done ) {
 
         conn.beginTransaction( function( err ) { assert.ifError( err ); });
 
-        conn.rollback( function( err ) { assert.ifError( err ); });
-
-        done();
+        conn.rollback( function( err ) { assert.ifError( err ); done(); });
     });
 
     test('begin a transaction and rollback with no query and no callback', function( done ) {
@@ -219,5 +215,40 @@ suite( 'txn', function() {
         });
     });
 
+    test('begin a transaction and commit (with no async support)', function( test_done ) {
+
+        conn.beginTransaction( function( err ) { 
+
+            assert.ifError( err );
+        });
+
+        conn.queryRaw( "INSERT INTO test_txn (name) VALUES ('Anne')", function( err, results ) { 
+            assert.ifError( err ); 
+        });
+
+        conn.queryRaw( "INSERT INTO test_txn (name) VALUES ('Bob')", function( err, results ) { 
+            assert.ifError( err );
+        });
+
+        conn.commit( function( err ) { 
+            assert.ifError( err );
+        });
+            
+        conn.queryRaw( "select * from test_txn", function( err, results ) {
+
+            assert.ifError( err );
+
+            // verify results
+            var expected = { 'meta':
+                             [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number' },
+                               { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
+                             'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ], [ 5, 'Anne' ], [ 6, 'Bob' ] ] };
+
+            assert.deepEqual( results, expected, "Transaction not committed properly" );
+
+            test_done();
+        });
+
+     });
 });
 

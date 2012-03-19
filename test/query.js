@@ -82,4 +82,63 @@ suite( 'query', function() {
         stmt.on('error', function(err) { assert.ifError( err ); });
     });
 
+    test( 'serialized queries', function( done ) {
+
+        var expected = [ { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
+                           rows: [ [ 1 ] ] },
+                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
+                           rows: [ [ 2 ] ] },
+                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
+                           rows: [ [ 3 ] ] },
+                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
+                           rows: [ [ 4 ] ] },
+                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
+                           rows: [ [ 5 ] ] } ];
+
+        var results = [];
+
+        var c = sql.open( conn_str, function( e ) {
+
+            assert.ifError( e );
+
+            c.queryRaw( "SELECT 1", function( e, r ) {
+
+                assert.ifError( e );
+
+                results.push( r );
+            });
+
+            c.queryRaw( "SELECT 2", function( e, r ) {
+
+                assert.ifError( e );
+
+                results.push( r );
+            });
+
+            c.queryRaw( "SELECT 3", function( e, r ) {
+
+                assert.ifError( e );
+
+                results.push( r );
+            });
+
+            c.queryRaw( "SELECT 4", function( e, r ) {
+
+                assert.ifError( e );
+
+                results.push( r );
+            });
+
+            c.queryRaw( "SELECT 5", function( e, r ) {
+
+                assert.ifError( e );
+
+                results.push( r );
+
+                assert.deepEqual( expected, results );
+                done();
+            });
+        });
+    });
+
 });
