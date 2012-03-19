@@ -82,7 +82,6 @@ suite( 'txn', function() {
 
             assert.ifError( e );
         }
-
     });
 
 
@@ -168,7 +167,7 @@ suite( 'txn', function() {
                                            { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
                                          'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ] ] };
 
-                        assert.deepEqual( results, expected, "Transaction not rollec back properly" );
+                        assert.deepEqual( results, expected, "Transaction not rolled back properly" );
 
                         done();
                         test_done();
@@ -210,7 +209,7 @@ suite( 'txn', function() {
                                            { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
                                          'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ] ] };
 
-                        assert.deepEqual( results, expected, "Transaction not rollec back properly" );
+                        assert.deepEqual( results, expected, "Transaction not rolled back properly" );
 
                         done();
                         test_done();
