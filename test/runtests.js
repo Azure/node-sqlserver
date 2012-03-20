@@ -15,6 +15,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var config = require('./test-config');
 
 var fileContent;
 var root = false;
@@ -46,4 +47,4 @@ files.forEach(function (file) {
   }
 });
 
-require('../node_modules/mocha/bin/mocha');
+require( config.mocha );

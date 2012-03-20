@@ -165,15 +165,37 @@ namespace mssql
         Handle<Value> CreateCompletionArg() override
         {
             HandleScope scope;
-            return scope.Close(Undefined());
+            return scope.Close( Undefined() );
         }
 
+    };
+
+    class BeginTranOperation : public OdbcOperation
+    {
+    public:
+        BeginTranOperation(shared_ptr<OdbcConnection> connection, Handle<Object> callback )
+            : OdbcOperation(connection, callback)
+        {
+        }
+
+        bool TryInvokeOdbc() override
+        {
+            return connection->TryBeginTran();
+        }
+
+        Handle<Value> CreateCompletionArg() override
+        {
+            HandleScope scope;
+            return scope.Close( Undefined() );
+        }
     };
 
     class EndTranOperation : public OdbcOperation
     {
     private:
+
         SQLSMALLINT completionType;
+
     public:
         EndTranOperation(shared_ptr<OdbcConnection> connection, SQLSMALLINT completionType, Handle<Object> callback)
             : OdbcOperation(connection, callback), 
@@ -189,7 +211,7 @@ namespace mssql
         Handle<Value> CreateCompletionArg() override
         {
             HandleScope scope;
-            return scope.Close(Undefined());
+            return scope.Close( Undefined() );
         }
 
     };

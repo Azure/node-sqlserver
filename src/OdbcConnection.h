@@ -44,6 +44,7 @@ namespace mssql
         {
         }
 
+        bool TryBeginTran();
         bool TryClose();
         bool TryOpen(const wstring& connectionString);
         bool TryExecute(const wstring& query);

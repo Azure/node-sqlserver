@@ -25,6 +25,7 @@ namespace mssql
 
         static void Initialize(Handle<Object> target);
         static Handle<Value> Close(const Arguments& args);
+        static Handle<Value> BeginTransaction(const Arguments& args);
         static Handle<Value> Commit(const Arguments& args);
         static Handle<Value> Rollback(const Arguments& args);
         static Handle<Value> New(const Arguments& args);
