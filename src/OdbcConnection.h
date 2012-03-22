@@ -10,7 +10,7 @@ namespace mssql
     class OdbcConnection
     {
     private:
-        OdbcEnvironmentHandle environment;
+        static OdbcEnvironmentHandle environment;
         OdbcConnectionHandle connection;
         OdbcStatementHandle statement;
 
@@ -43,6 +43,8 @@ namespace mssql
               executionState(Idle)
         {
         }
+
+        static void InitializeEnvironment();
 
         bool TryBeginTran();
         bool TryClose();
