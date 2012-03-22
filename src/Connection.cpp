@@ -27,6 +27,8 @@ namespace mssql
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollback", Connection::Rollback);
 
         target->Set(String::NewSymbol("Connection"), constructor_template->GetFunction());
+
+        OdbcConnection::InitializeEnvironment();
     }
     
     Handle<Value> Connection::Close(const Arguments& args)

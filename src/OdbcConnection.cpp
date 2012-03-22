@@ -4,13 +4,40 @@
 
 namespace mssql
 {
+    OdbcEnvironmentHandle OdbcConnection::environment;
+
+    void OdbcConnection::InitializeEnvironment()
+    {
+        SQLRETURN ret = SQLSetEnvAttr(NULL, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)SQL_CP_ONE_PER_HENV, 0);
+        if (!SQL_SUCCEEDED(ret)) { throw OdbcException("Unable to initialize ODBC connection pooling"); }
+
+        environment.Alloc();
+
+        ret = SQLSetEnvAttr(environment, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
+        if (!SQL_SUCCEEDED(ret)) { throw OdbcException::Create(SQL_HANDLE_ENV, environment); }
+        ret = SQLSetEnvAttr(environment, SQL_ATTR_CP_MATCH, (SQLPOINTER)SQL_CP_RELAXED_MATCH, 0);
+        if (!SQL_SUCCEEDED(ret)) { throw OdbcException::Create(SQL_HANDLE_ENV, environment); }
+    }
 
     bool OdbcConnection::TryClose()
     {
-        statement.Free();
-        connection.Free();
-        environment.Free();
-        connectionState = Closed;
+        if (connectionState != Closed)
+        {
+            SQLRETURN ret = SQLDisconnect(connection);
+            if (ret == SQL_STILL_EXECUTING) 
+            { 
+                return false; 
+            }
+            if (!SQL_SUCCEEDED(ret)) 
+            { 
+                connection.Throw();  
+            }
+
+            statement.Free();
+            connection.Free();
+            connectionState = Closed;
+        }
+
         return true;
     }
 
@@ -20,22 +47,10 @@ namespace mssql
 
         if (connectionState == Closed)
         {
-            OdbcEnvironmentHandle localEnvironment;
             OdbcConnectionHandle localConnection;
 
-            ret = SQLSetEnvAttr(NULL, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)SQL_CP_ONE_PER_HENV, 0);
-            if (!SQL_SUCCEEDED(ret)) { throw OdbcException("Unable to initialize ODBC connection pooling"); }
+            localConnection.Alloc(environment);
 
-            localEnvironment.Alloc();
-
-            ret = SQLSetEnvAttr(localEnvironment, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
-            if (!SQL_SUCCEEDED(ret)) { throw OdbcException::Create(SQL_HANDLE_ENV, localEnvironment); }
-            ret = SQLSetEnvAttr(localEnvironment, SQL_ATTR_CP_MATCH, (SQLPOINTER)SQL_CP_RELAXED_MATCH, 0);
-            if (!SQL_SUCCEEDED(ret)) { throw OdbcException::Create(SQL_HANDLE_ENV, localEnvironment); }
-
-            localConnection.Alloc(localEnvironment);
-
-            this->environment = std::move(localEnvironment);
             this->connection = std::move(localConnection);
 
             // TODO: determine async open support correctly
