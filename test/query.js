@@ -5,137 +5,139 @@ var sql = require('../');
 var assert = require( 'assert' );
 var config = require( './test-config' );
 
-suite( 'query', function() {
+suite('query', function () {
 
     var conn_str = "Driver={SQL Server Native Client 11.0};Server=" + config.server + ";Trusted_Connection={Yes};";
 
-    test('simple query', function( done ) {
+    test('simple query', function (done) {
 
-        sql.query(conn_str, "SELECT 1 as X, 'ABC', 0x0123456789abcdef ", function( err, results ) {
+        sql.query(conn_str, "SELECT 1 as X, 'ABC', 0x0123456789abcdef ", function (err, results) {
 
-            assert.ifError( err );
+            assert.ifError(err);
 
             var buffer = new Buffer('0123456789abcdef', 'hex');
-            var expected = [ { 'X': 1, 'Column1' : 'ABC', 'Column2': buffer } ];
-            
-            assert.deepEqual( results, expected, "Results don't match");
+            var expected = [{ 'X': 1, 'Column1': 'ABC', 'Column2': buffer}];
+
+            assert.deepEqual(results, expected, "Results don't match");
 
             done();
         });
     });
 
-    test('simple raw query', function( done ) {
+    test('simple raw query', function (done) {
 
-        sql.queryRaw(conn_str, "SELECT 1 as X, 'ABC', 0x0123456789abcdef ", function( err, results ) {
+        sql.queryRaw(conn_str, "SELECT 1 as X, 'ABC', 0x0123456789abcdef ", function (err, results) {
 
-            assert.ifError( err );
+            assert.ifError(err);
 
             var buffer = new Buffer('0123456789abcdef', 'hex');
 
             var expected = { meta:
-                             [ { name: 'X', size: 10, nullable: false, type: 'number' },
+                             [{ name: 'X', size: 10, nullable: false, type: 'number' },
                                { name: '', size: 3, nullable: false, type: 'text' },
-                               { name: '', size: 8, nullable: false, type: 'binary' } ],
-                             rows: [ [ 1, 'ABC', buffer ] ] }
+                               { name: '', size: 8, nullable: false, type: 'binary'}],
+                rows: [[1, 'ABC', buffer]]
+            }
 
-            assert.deepEqual( results, expected, "raw results didn't match" );
-
-            done();
-        });
-
-    });
-
-    test('simple query of types like var%', function( done ) {
-
-        var like = 'var%';
-
-        sql.query( conn_str, "SELECT name FROM sys.types WHERE name LIKE ?", [like], function ( err, results ) {
-
-            assert.ifError( err );
-            
-            var expected = [ { 'name': 'varbinary' },
-                             { 'name': 'varchar' } ];
-
-            assert.deepEqual( results, expected, "types like var% not equal" );
+            assert.deepEqual(results, expected, "raw results didn't match");
 
             done();
         });
 
     });
 
-    test( 'streaming test', function( done ) {
+    test('simple query of types like var%', function (done) {
 
         var like = 'var%';
-        var expected =[ [ { name: 'name', size: 128, nullable: false, type: 'text' } ],
-                        { row: 0 },
-                        { column: 0, data: 'varbinary', more: false },
-                        { row: 1 },
-                        { column: 0, data: 'varchar', more: false } ];
 
-        var stmt = sql.query( conn_str, 'select name FROM sys.types WHERE name LIKE ?', [like] );
-        var results = [];
+        sql.query(conn_str, "SELECT name FROM sys.types WHERE name LIKE ?", [like], function (err, results) {
 
-        stmt.on('meta', function(meta) { results.push( meta ); });
-        stmt.on('row', function(idx) { results.push( { row: idx } ); });
-        stmt.on('column', function(idx, data, more) { results.push( { column: idx, data: data, more: more }); });
-        stmt.on('done', function() { assert.deepEqual( expected, results ); done(); });
-        stmt.on('error', function(err) { assert.ifError( err ); });
+            assert.ifError(err);
+
+            for (var row = 0; row < results.length; ++row) {
+
+                assert(results[row].name.substr(0, 3) == 'var');
+            }
+
+            done();
+        });
+
     });
 
-    test( 'serialized queries', function( done ) {
+    test('streaming test', function (done) {
 
-        var expected = [ { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
-                           rows: [ [ 1 ] ] },
-                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
-                           rows: [ [ 2 ] ] },
-                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
-                           rows: [ [ 3 ] ] },
-                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
-                           rows: [ [ 4 ] ] },
-                         { meta: [ { name: '', size: 10, nullable: false, type: 'number' } ],
-                           rows: [ [ 5 ] ] } ];
+        var like = 'var%';
+        var current_row = 0;
+        var meta_expected = [{ name: 'name', size: 128, nullable: false, type: 'text'}];
+
+        var stmt = sql.query(conn_str, 'select name FROM sys.types WHERE name LIKE ?', [like]);
+
+        stmt.on('meta', function (meta) { assert.deepEqual(meta, meta_expected); });
+        stmt.on('row', function (idx) { assert(idx == current_row); ++current_row; });
+        stmt.on('column', function (idx, data, more) { assert(data.substr(0,3) == 'var'); });
+        stmt.on('done', function () { done(); });
+        stmt.on('error', function (err) { assert.ifError(err); });
+    });
+
+    test('serialized queries', function (done) {
+
+        var expected = [{ meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+            rows: [[1]]
+        },
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                             rows: [[2]]
+                         },
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                             rows: [[3]]
+                         },
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                             rows: [[4]]
+                         },
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                             rows: [[5]]
+                         }];
 
         var results = [];
 
-        var c = sql.open( conn_str, function( e ) {
+        var c = sql.open(conn_str, function (e) {
 
-            assert.ifError( e );
+            assert.ifError(e);
 
-            c.queryRaw( "SELECT 1", function( e, r ) {
+            c.queryRaw("SELECT 1", function (e, r) {
 
-                assert.ifError( e );
+                assert.ifError(e);
 
-                results.push( r );
+                results.push(r);
             });
 
-            c.queryRaw( "SELECT 2", function( e, r ) {
+            c.queryRaw("SELECT 2", function (e, r) {
 
-                assert.ifError( e );
+                assert.ifError(e);
 
-                results.push( r );
+                results.push(r);
             });
 
-            c.queryRaw( "SELECT 3", function( e, r ) {
+            c.queryRaw("SELECT 3", function (e, r) {
 
-                assert.ifError( e );
+                assert.ifError(e);
 
-                results.push( r );
+                results.push(r);
             });
 
-            c.queryRaw( "SELECT 4", function( e, r ) {
+            c.queryRaw("SELECT 4", function (e, r) {
 
-                assert.ifError( e );
+                assert.ifError(e);
 
-                results.push( r );
+                results.push(r);
             });
 
-            c.queryRaw( "SELECT 5", function( e, r ) {
+            c.queryRaw("SELECT 5", function (e, r) {
 
-                assert.ifError( e );
+                assert.ifError(e);
 
-                results.push( r );
+                results.push(r);
 
-                assert.deepEqual( expected, results );
+                assert.deepEqual(expected, results);
                 done();
             });
         });
