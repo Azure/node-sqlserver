@@ -2,7 +2,7 @@
   "name": "node-sqlserver",
   "description": "Microsoft Driver for Node.js for SQL Server",
   "author": "Microsoft Corp.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "./lib/sql.js",
   "devDependencies": {
      "mocha" : "0.14.x",
