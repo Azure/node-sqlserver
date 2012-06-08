@@ -1,5 +1,5 @@
 {
-  "name": "mssql",
+  "name": "node-sqlserver",
   "description": "Microsoft Driver for Node.js for SQL Server",
   "author": "Microsoft Corp.",
   "version": "0.0.1",
