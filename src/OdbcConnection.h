@@ -82,7 +82,7 @@ namespace mssql
         Handle<Value> MoreRows()
         {
             HandleScope scope;
-            return scope.Close(Boolean::New(resultset->moreRows));
+            return scope.Close(Boolean::New(resultset->MoreRows()));
         }
 
         Handle<Value> GetColumnValue()

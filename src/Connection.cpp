@@ -40,6 +40,7 @@ namespace mssql
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "query", Connection::Query);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "readRow", Connection::ReadRow);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "readColumn", Connection::ReadColumn);
+        NODE_SET_PROTOTYPE_METHOD(constructor_template, "readRowCount", Connection::ReadRowCount);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "beginTransaction", Connection::BeginTransaction);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit", Connection::Commit);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollback", Connection::Rollback);
@@ -150,6 +151,13 @@ namespace mssql
         Connection* connection = Unwrap<Connection>(args.This());
 
         return scope.Close<Value>(connection->innerConnection->ReadNextResult(callback));
+    }
+
+    Handle<Value> Connection::ReadRowCount(const Arguments& args)
+    {
+        Connection* connection = Unwrap<Connection>(args.This());
+
+        return connection->innerConnection->ReadRowCount();
     }
 
     Handle<Value> Connection::Open(const Arguments& args)

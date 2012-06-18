@@ -27,7 +27,9 @@ namespace mssql
 
     class ResultSet
     {
+
     public:
+
         struct ColumnDefinition
         {
             wstring name;
@@ -38,14 +40,18 @@ namespace mssql
         };
 
         ResultSet(int columns) 
-            : moreRows(false)
+            : rowcount(0),
+              moreRows(false)
         {
             metadata.resize(columns);
+            column.reset();
         }
+  
         ColumnDefinition& GetMetadata(int column)
         {
             return metadata[column];
         }
+
         int GetColumns() const
         {
             return metadata.size();
@@ -57,16 +63,29 @@ namespace mssql
         {
             this->column = column;
         }
+
         shared_ptr<Column> GetColumn()
         {
             return column;
         }
 
-    //private:
+        SQLLEN RowCount() const
+        {
+            return rowcount;
+        }
+
+        bool MoreRows() const
+        {
+            return moreRows;
+        }
+
+    private:
+
         vector<ColumnDefinition> metadata;
         SQLLEN rowcount;
         bool moreRows;
-    private:
         shared_ptr<Column> column;
+
+        friend class OdbcConnection;    // allow access to the moreRows flag to just the ResultSet creating class
     };
 }

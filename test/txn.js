@@ -92,12 +92,14 @@ suite( 'txn', function() {
                 function( done ) { 
                     conn.queryRaw( "INSERT INTO test_txn (name) VALUES ('Anne')", function( err, results ) { 
                         assert.ifError( err ); 
+                        assert.deepEqual( results, { meta: null, rowcount: 1 }, "Insert results don't match" );
                         done();
                     });
                 },
                 function( done ) {
                     conn.queryRaw( "INSERT INTO test_txn (name) VALUES ('Bob')", function( err, results ) { 
                         assert.ifError( err );
+                        assert.deepEqual( results, { meta: null, rowcount: 1 }, "Insert results don't match" );
                         done();
                     });
                 },
@@ -138,12 +140,14 @@ suite( 'txn', function() {
                 function( done ) { 
                     conn.queryRaw( "INSERT INTO test_txn (name) VALUES ('Carl')", function( err, results ) { 
                         assert.ifError( err ); 
+                        assert.deepEqual( results, { meta: null, rowcount: 1 }, "Insert results don't match" );
                         done();
                     });
                 },
                 function( done ) {
                     conn.queryRaw( "INSERT INTO test_txn (name) VALUES ('Dana')", function( err, results ) { 
                         assert.ifError( err );
+                        assert.deepEqual( results, { meta: null, rowcount: 1 }, "Insert results don't match" );
                         done();
                     });
                 },

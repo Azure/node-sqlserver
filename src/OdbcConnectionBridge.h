@@ -31,6 +31,7 @@ namespace mssql
     class OdbcConnectionBridge
     {
     public:
+
         OdbcConnectionBridge()
         {
             connection = make_shared<OdbcConnection>();
@@ -96,6 +97,16 @@ namespace mssql
             return scope.Close(Undefined());
         }
         
+        Handle<Integer> ReadRowCount( void )
+        {
+            HandleScope scope;
+
+            assert( connection );
+            assert( connection->resultset );
+
+            return scope.Close( Integer::New( connection->resultset->RowCount() ));
+        }
+
         Handle<Value> ReadNextResult(Handle<Object> callback)
         {
             HandleScope scope;
@@ -125,10 +136,9 @@ namespace mssql
 
             return scope.Close(Undefined());
         }
+
     private:
 
         shared_ptr<OdbcConnection> connection;
     };
-
 }
-

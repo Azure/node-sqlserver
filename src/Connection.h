@@ -53,6 +53,7 @@ namespace mssql
         static Handle<Value> ReadRow(const Arguments& args);
         static Handle<Value> ReadColumn(const Arguments& args);
         static Handle<Value> ReadNextResult(const Arguments& args);
+        static Handle<Value> ReadRowCount(const Arguments& args);
     };
 
 }
