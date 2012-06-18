@@ -48,7 +48,7 @@ Included are a few unit tests.  They require mocha, async, and assert to be
 installed via npm.  Also, set the variables in test-config.js, then run the 
 tests as follows:
 
-    cd tests
+    cd test
     node runtests.js
 
 ## Known Issues
