@@ -2,7 +2,10 @@
 // test rudimentary queries for mssql
 
 var sql = require('../');
+
 var assert = require( 'assert' );
+var async = require( 'async' );
+
 var config = require( './test-config' );
 
 suite('query', function () {
@@ -140,6 +143,82 @@ suite('query', function () {
                 assert.deepEqual(expected, results);
                 done();
             });
+        });
+    });
+
+    test( 'query with errors', function( done ) {
+
+        var c = sql.open( conn_str, function( e ) {
+
+            assert.ifError( e );
+
+            async.series( [
+
+                function( async_done ) {
+
+                    assert.doesNotThrow( function() {
+
+                        c.queryRaw( "I'm with NOBODY", function( e, r ) {
+
+                            assert.equal( e.toString(),
+                                          "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                            async_done();
+                        });
+                    });
+                },
+
+                function( async_done ) {
+
+                    assert.doesNotThrow( function() {
+
+                        var s = c.queryRaw( "I'm with NOBODY" );
+                        s.on( 'error', function( e ) {
+
+                            assert.equal( e.toString(), "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                            async_done();
+                            done();
+                        });
+                    });
+                }
+            ]);
+        });
+    });
+
+    test( 'query with errors', function( done ) {
+
+        var c = sql.open( conn_str, function( e ) {
+
+            assert.ifError( e );
+
+            async.series( [
+
+                function( async_done ) {
+
+                    assert.doesNotThrow( function() {
+
+                        c.queryRaw( "I'm with NOBODY", function( e, r ) {
+
+                            assert.equal( e.toString(),
+                                          "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                            async_done();
+                        });
+                    });
+                },
+
+                function( async_done ) {
+
+                    assert.doesNotThrow( function() {
+
+                        var s = c.queryRaw( "I'm with NOBODY" );
+                        s.on( 'error', function( e ) {
+
+                            assert.equal( e.toString(), "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                            async_done();
+                            done();
+                        });
+                    });
+                }
+            ]);
         });
     });
 
