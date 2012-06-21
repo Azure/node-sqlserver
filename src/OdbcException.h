@@ -2,7 +2,7 @@
 // File: OdbcException.h
 // Contents: Exception created from ODBC error(s)
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
