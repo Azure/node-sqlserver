@@ -47,4 +47,4 @@ files.forEach(function (file) {
   }
 });
 
-require( config.mocha );
+require('mocha/bin/mocha');
