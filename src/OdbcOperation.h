@@ -97,7 +97,7 @@ namespace mssql
         Handle<Value> CreateCompletionArg() override
         {
             HandleScope scope;
-            return scope.Close(connection->GetMetaValue());
+            return scope.Close( connection->GetMetaValue() );
         }
 
     };
@@ -118,7 +118,7 @@ namespace mssql
         Handle<Value> CreateCompletionArg() override
         {
             HandleScope scope;
-            return scope.Close(connection->MoreRows());
+            return scope.Close(connection->EndOfRows());
         }
 
     };
@@ -163,7 +163,13 @@ namespace mssql
         Handle<Value> CreateCompletionArg() override
         {
             HandleScope scope;
-            return scope.Close(connection->MoreRows());
+
+            Local<Object> more_meta = Object::New();
+
+            more_meta->Set( String::NewSymbol( "endOfResults" ), connection->EndOfResults() );
+            more_meta->Set( String::NewSymbol( "meta" ), connection->GetMetaValue() );
+
+            return scope.Close( more_meta );
         }
 
     };

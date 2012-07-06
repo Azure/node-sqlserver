@@ -41,7 +41,7 @@ namespace mssql
 
         ResultSet(int columns) 
             : rowcount(0),
-              moreRows(false)
+              endOfRows(true)
         {
             metadata.resize(columns);
             column.reset();
@@ -74,18 +74,18 @@ namespace mssql
             return rowcount;
         }
 
-        bool MoreRows() const
+        bool EndOfRows() const
         {
-            return moreRows;
+            return endOfRows;
         }
 
     private:
 
         vector<ColumnDefinition> metadata;
         SQLLEN rowcount;
-        bool moreRows;
+        bool endOfRows;
         shared_ptr<Column> column;
 
-        friend class OdbcConnection;    // allow access to the moreRows flag to just the ResultSet creating class
+        friend class OdbcConnection;    // allow access to the endOfRows flag to just the ResultSet creating class
     };
 }

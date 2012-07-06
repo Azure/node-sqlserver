@@ -44,6 +44,7 @@ namespace mssql
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "beginTransaction", Connection::BeginTransaction);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "commit", Connection::Commit);
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "rollback", Connection::Rollback);
+        NODE_SET_PROTOTYPE_METHOD(constructor_template, "nextResult", Connection::ReadNextResult);
 
         target->Set(String::NewSymbol("Connection"), constructor_template->GetFunction());
 

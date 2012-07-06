@@ -115,6 +115,7 @@ namespace mssql
 
         if (executionState == Executing)
         {
+            endOfResults = true;     // reset 
             SQLRETURN ret = SQLExecDirect(statement, const_cast<wchar_t*>(query.c_str()), query.length());
             if (ret == SQL_STILL_EXECUTING) 
             { 
@@ -194,10 +195,11 @@ namespace mssql
             {
                 executionState = FetchRow;
             }
-            else {
-                statement.Free();
-                executionState = Idle;
+            else 
+            {
+                executionState = NextResults;
             }
+            
             return true;
         }
 
@@ -218,14 +220,13 @@ namespace mssql
         }
         if (ret == SQL_NO_DATA) 
         { 
-            resultset->moreRows = false;
-            statement.Free();
-            executionState = Idle;
+            resultset->endOfRows = true;
+            executionState = NextResults;
             return true;
         }
         else 
         {
-            resultset->moreRows = true;
+            resultset->endOfRows = false;
         }
         if (!SQL_SUCCEEDED(ret)) 
         { 
@@ -422,32 +423,30 @@ namespace mssql
 
     bool OdbcConnection::TryReadNextResult()
     {
-        if (executionState == FetchRow)
-        {
-
-            SQLRETURN ret = SQLMoreResults(statement);
-            if (ret == SQL_STILL_EXECUTING) 
-            { 
-                return false; 
-            }
-            if (ret == SQL_NO_DATA) 
-            { 
-                resultset->moreRows = false;
-                statement.Free();
-                executionState = Idle;
-                return true;
-            }
-            else 
-            {
-                resultset->moreRows = true;
-            }
-            if (!SQL_SUCCEEDED(ret)) 
-            { 
-                statement.Throw();
-            }
-
-            executionState = CountingColumns;
+        if (executionState != NextResults)
+        {            
+            throw OdbcException("The connection is in an invalid state");
         }
+
+        SQLRETURN ret = SQLMoreResults(statement);
+        if (ret == SQL_STILL_EXECUTING) 
+        { 
+            return false; 
+        }
+        if (ret == SQL_NO_DATA) 
+        { 
+            endOfResults = true;
+            statement.Free();
+            executionState = Idle;
+            return true;
+        }
+        if (!SQL_SUCCEEDED(ret)) 
+        { 
+            statement.Throw();
+        }
+
+        endOfResults = false;
+        executionState = CountingColumns;
 
         return TryExecute(L"");
     }

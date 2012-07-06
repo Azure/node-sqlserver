@@ -48,17 +48,21 @@ namespace mssql
             Metadata,
             CountRows,
             FetchRow,
-            FetchColumn
+            FetchColumn,
+            NextResults
         } executionState;
 
         int column;
+        bool endOfResults;
 
     public:
         shared_ptr<ResultSet> resultset;
 
         OdbcConnection()
             : connectionState(Closed),
-              executionState(Idle)
+              executionState(Idle),
+              column(0),
+              endOfResults(true)
         {
         }
 
@@ -79,10 +83,16 @@ namespace mssql
             return scope.Close(resultset->MetaToValue());
         }
 
-        Handle<Value> MoreRows()
+        Handle<Value> EndOfResults()
         {
             HandleScope scope;
-            return scope.Close(Boolean::New(resultset->MoreRows()));
+            return scope.Close( Boolean::New( endOfResults ));
+        }
+
+        Handle<Value> EndOfRows()
+        {
+            HandleScope scope;
+            return scope.Close(Boolean::New(resultset->EndOfRows()));
         }
 
         Handle<Value> GetColumnValue()
