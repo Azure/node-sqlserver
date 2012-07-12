@@ -116,4 +116,17 @@ namespace mssql
     private:
         double value;
     };
+
+    class BoolColumn : public Column
+    {
+    public:
+        BoolColumn( bool value) : value(value) {}
+        Handle<Value> ToValue()
+        {
+            HandleScope scope;
+            return scope.Close(Boolean::New(value));
+        }
+    private:
+        bool value;
+    };
 }

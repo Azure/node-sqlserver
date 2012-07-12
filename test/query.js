@@ -313,4 +313,22 @@ suite('query', function () {
         r.on('done', function() { assert.deepEqual( received, expected ); done() } );
         r.on('error', function( e ) { assert.ifError( e ); } );
     });
+
+
+    test( 'boolean return value from query', function( done ) {
+
+        var r = sql.queryRaw( conn_str, "SELECT CONVERT(bit, 1) AS bit_true, CONVERT(bit, 0) AS bit_false", 
+                              function ( err, results ) {
+
+                                  assert.ifError( err );
+
+                                  var expected = { meta: [ { name: 'bit_true', size: 1, nullable: true, type: 'boolean' },
+                                                   { name: 'bit_false', size: 1, nullable: true, type: 'boolean' } ],
+                                                   rows: [ [ true, false ] ] };
+                                  assert.deepEqual( results, expected, "Results didn't match" );
+                                  done();
+                              });
+
+    });
+
 });
