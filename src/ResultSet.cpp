@@ -43,8 +43,10 @@ namespace mssql
             case SQL_WLONGVARCHAR:
                 typeName = L"text";
                 break;
-            case SQL_SMALLINT:
             case SQL_BIT:
+                typeName = L"boolean";
+                break;
+            case SQL_SMALLINT:
             case SQL_TINYINT:
             case SQL_INTEGER:
             case SQL_DECIMAL:
