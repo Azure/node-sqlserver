@@ -294,29 +294,8 @@ namespace mssql
                 }
             }
             break;
-        case SQL_BIT:
-            {
-                long val;
-                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_SLONG, &val, sizeof(val), &strLen_or_IndPtr);
-                if (ret == SQL_STILL_EXECUTING) 
-                { 
-                    return false; 
-                }
-                if (!SQL_SUCCEEDED(ret)) 
-                { 
-                    statement.Throw();  
-                }
-                if (strLen_or_IndPtr == SQL_NULL_DATA) 
-                {
-                    resultset->SetColumn(make_shared<NullColumn>());
-                }
-                else 
-                {
-                    resultset->SetColumn(make_shared<BoolColumn>((val != 0) ? true : false));
-                }
-            }
-            break;
         case SQL_SMALLINT:
+        case SQL_BIT:
         case SQL_TINYINT:
         case SQL_INTEGER:
             {
