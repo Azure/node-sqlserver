@@ -57,13 +57,17 @@ namespace mssql
             case SQL_BIGINT:
                 typeName = L"number";
                 break;
+            case SQL_TYPE_TIME:
+            case SQL_SS_TIME2:
+            case SQL_TYPE_TIMESTAMP:
+            case SQL_TYPE_DATE:
+            case SQL_SS_TIMESTAMPOFFSET:
+                typeName = L"date";
+                break;
             case SQL_BINARY:
             case SQL_VARBINARY:
             case SQL_LONGVARBINARY:
             case SQL_GUID:
-            case SQL_TYPE_TIME:
-            case SQL_TYPE_TIMESTAMP:
-            case SQL_TYPE_DATE:
             default:
                 typeName = L"binary";
                 break;

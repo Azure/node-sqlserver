@@ -20,6 +20,8 @@
 #include "stdafx.h"
 #include "OdbcConnection.h"
 
+#pragma intrinsic( memset )
+
 namespace mssql
 {
     OdbcEnvironmentHandle OdbcConnection::environment;
@@ -416,10 +418,68 @@ namespace mssql
             break;
         // use text format form time/date/etc.. for now
         // INTERVAL TYPES? 
-        case SQL_GUID:
-        case SQL_TYPE_TIME:
         case SQL_TYPE_TIMESTAMP:
         case SQL_TYPE_DATE:
+        case SQL_SS_TIMESTAMPOFFSET:
+            {
+                SQL_SS_TIMESTAMPOFFSET_STRUCT datetime;
+                memset( &datetime, 0, sizeof( datetime ));
+
+                SQLRETURN ret = SQLGetData( statement, column + 1, SQL_C_DEFAULT, &datetime, sizeof( datetime ),
+                                            &strLen_or_IndPtr );
+                if (ret == SQL_STILL_EXECUTING) 
+                { 
+                    return false; 
+                }
+                if (!SQL_SUCCEEDED(ret)) 
+                { 
+                    statement.Throw();  
+                }
+                if (strLen_or_IndPtr == SQL_NULL_DATA) 
+                {
+                    resultset->SetColumn(make_shared<NullColumn>());
+                    break;
+                }
+
+                resultset->SetColumn( make_shared<TimestampColumn>( datetime ));
+            }
+            break;
+        case SQL_TYPE_TIME:
+        case SQL_SS_TIME2:
+            {
+                SQL_SS_TIME2_STRUCT time;
+                memset( &time, 0, sizeof( time ));
+
+                SQLRETURN ret = SQLGetData( statement, column + 1, SQL_C_DEFAULT, &time, sizeof( time ),
+                                            &strLen_or_IndPtr );
+                if (ret == SQL_STILL_EXECUTING) 
+                { 
+                    return false; 
+                }
+                if (!SQL_SUCCEEDED(ret)) 
+                { 
+                    statement.Throw();  
+                }
+                if (strLen_or_IndPtr == SQL_NULL_DATA) 
+                {
+                    resultset->SetColumn(make_shared<NullColumn>());
+                    break;
+                }
+
+                SQL_SS_TIMESTAMPOFFSET_STRUCT datetime;
+                memset( &datetime, 0, sizeof( datetime ));  // not necessary, but simple precaution
+                datetime.year = SQL_SERVER_DEFAULT_YEAR;
+                datetime.month = SQL_SERVER_DEFAULT_MONTH;
+                datetime.day = SQL_SERVER_DEFAULT_DAY;
+                datetime.hour = time.hour;
+                datetime.minute = time.minute;
+                datetime.second = time.second;
+                datetime.fraction = time.fraction;
+
+                resultset->SetColumn( make_shared<TimestampColumn>( datetime ));
+            }
+            break;
+        case SQL_GUID:
         default:
             {
                 // TODO: how to figure out the size?
