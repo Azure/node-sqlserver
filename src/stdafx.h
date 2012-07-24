@@ -26,6 +26,8 @@
 
 #include <sqlucode.h>
 
+#include <windows.h>	// for critical section until xplatform
+
 #include <vector>
 #include <queue>
 #include <string>

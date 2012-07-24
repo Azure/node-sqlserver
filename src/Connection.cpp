@@ -50,7 +50,13 @@ namespace mssql
 
         OdbcConnection::InitializeEnvironment();
     }
-    
+
+    Connection::~Connection( void )
+    {
+        // close the connection now since the object is being collected
+        innerConnection->Collect();
+    }
+
     Handle<Value> Connection::Close(const Arguments& args)
     {
         HandleScope scope;
@@ -95,16 +101,18 @@ namespace mssql
         return scope.Close<Value>(connection->innerConnection->Rollback( callback ));
     }
 
-    Handle<Value> Connection::New(const Arguments& args) {
+    Handle<Value> Connection::New(const Arguments& args) 
+    {
         HandleScope scope;
 
         if (!args.IsConstructCall()) {
             return Undefined();
         }
 
-        Connection *s = new Connection();
-        s->Wrap(args.This());
-        s->This = Persistent<Object>::New(args.This());
+        Connection *c = new Connection();
+
+        c->Wrap(args.This());
+
         return args.This();
     }
     

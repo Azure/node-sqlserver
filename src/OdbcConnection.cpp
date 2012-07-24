@@ -41,21 +41,26 @@ namespace mssql
 
     bool OdbcConnection::TryClose()
     {
-        if (connectionState != Closed)
+        if (connectionState != Closed)  // fast fail before critical section
         {
-            SQLRETURN ret = SQLDisconnect(connection);
-            if (ret == SQL_STILL_EXECUTING) 
-            { 
-                return false; 
-            }
-            if (!SQL_SUCCEEDED(ret)) 
-            { 
-                connection.Throw();  
-            }
+            ScopedCriticalSectionLock critSecLock( closeCriticalSection );
+            if (connectionState != Closed)
+            {
+                SQLRETURN ret = SQLDisconnect(connection);
+                if (ret == SQL_STILL_EXECUTING) 
+                { 
+                    return false; 
+                }
+                if (!SQL_SUCCEEDED(ret)) 
+                { 
+                    connection.Throw();  
+                }
 
-            statement.Free();
-            connection.Free();
-            connectionState = Closed;
+                resultset.reset();
+                statement.Free();
+                connection.Free();
+                connectionState = Closed;
+            }
         }
 
         return true;

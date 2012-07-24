@@ -47,6 +47,12 @@ namespace mssql
             return scope.Close(Undefined());
         }
 
+        void Collect( void )
+        {
+            Operation* operation = new CollectOperation(connection);
+            Operation::Add( operation );
+        }
+
         Handle<Value> BeginTransaction(Handle<Object> callback )
         {
             HandleScope scope;
