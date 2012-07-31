@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------------------------------------------------------------
-// File: queries.js
+// File: query.js
 // Contents: test suite for queries
 // 
-// Copyright Microsoft Corporation and contributors
+// Copyright Microsoft Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ var config = require( './test-config' );
 
 suite('query', function () {
 
-    var conn_str = "Driver={SQL Server Native Client 11.0};Server=" + config.server + ";Trusted_Connection={Yes};";
+    var conn_str = config.conn_str;
 
     test('simple query', function (done) {
 
@@ -177,7 +177,7 @@ suite('query', function () {
                         c.queryRaw( "I'm with NOBODY", function( e, r ) {
 
                             assert.equal( e.toString(),
-                                          "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                                          "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
                             async_done();
                         });
                     });
@@ -190,7 +190,7 @@ suite('query', function () {
                         var s = c.queryRaw( "I'm with NOBODY" );
                         s.on( 'error', function( e ) {
 
-                            assert.equal( e.toString(), "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                            assert.equal(e.toString(), "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
                             async_done();
                             done();
                         });
@@ -215,7 +215,7 @@ suite('query', function () {
                         c.queryRaw( "I'm with NOBODY", function( e, r ) {
 
                             assert.equal( e.toString(),
-                                          "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                                          "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
                             async_done();
                         });
                     });
@@ -228,7 +228,7 @@ suite('query', function () {
                         var s = c.queryRaw( "I'm with NOBODY" );
                         s.on( 'error', function( e ) {
 
-                            assert.equal( e.toString(), "Error: 42000: [Microsoft][SQL Server Native Client 11.0][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+                            assert.equal(e.toString(), "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
                             async_done();
                             done();
                         });
@@ -340,13 +340,19 @@ suite('query', function () {
                 async_done();
               });
             },
-            function( async_done ) {
-              conn.queryRaw( "create table test_sql_no_data (id int identity, name varchar(20))", function( err ) {
-                assert.ifError( err );
-                async_done();
-              });
+            function (async_done) {
+                conn.queryRaw("create table test_sql_no_data (id int identity, name varchar(20))", function (err) {
+                    assert.ifError(err);
+                    async_done();
+                });
             },
-            function( async_done ) {
+            function (async_done) {
+                conn.queryRaw("create clustered index index_nodata on test_sql_no_data (id)", function (err) {
+                    assert.ifError(err);
+                    async_done();
+                });
+            },
+            function (async_done) {
               conn.queryRaw( "delete from test_sql_no_data where 1=0", function( err, results ) {
 
                 assert.ifError( err );

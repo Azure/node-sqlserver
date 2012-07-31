@@ -26,7 +26,7 @@ var config = require( './test-config' );
 
 suite( 'date tests', function() {
 
-    var conn_str = "Driver={SQL Server Native Client 11.0};Server=" + config.server + ";Trusted_Connection={Yes};";
+    var conn_str = config.conn_str;
 
     // this test simply verifies dates round trip.  It doesn't try to verify illegal dates vs. legal dates.
     // SQL Server is assumed to be only returning valid times and dates.
@@ -44,13 +44,21 @@ suite( 'date tests', function() {
               },
               function( async_done ) {
 
-                  conn.queryRaw( "CREATE TABLE date_test (test_date date)", function( e ) {
+                  conn.queryRaw("CREATE TABLE date_test (id int identity, test_date date)", function (e) {
 
                       assert.ifError( e );
                       async_done();
                   });
               },
-              function( async_done ) {
+              function (async_done) {
+
+                  conn.queryRaw("CREATE CLUSTERED INDEX IX_date_test ON date_test(id)", function (e) {
+
+                    assert.ifError(e);
+                    async_done();
+                });
+              },
+              function (async_done) {
 
                   var insertQuery = "INSERT INTO date_test (test_date) VALUES ";
                   for( var i in testDates ) {
@@ -115,15 +123,23 @@ suite( 'date tests', function() {
 
                 conn.queryRaw( "DROP TABLE date_diff_test", function( e ) { async_done(); } );
             },
-            function( async_done ) {
+            function (async_done) {
 
-                conn.queryRaw( "CREATE TABLE date_diff_test (id int identity, date1 datetime2, date2 datetime2)", function( e ) {
+                conn.queryRaw("CREATE TABLE date_diff_test (id int identity, date1 datetime2, date2 datetime2)", function (e) {
 
-                    assert.ifError( e );
+                    assert.ifError(e);
                     async_done();
                 });
             },
-            function( async_done ) {
+            function (async_done) {
+
+                conn.queryRaw("CREATE CLUSTERED INDEX IX_date_diff_test ON date_diff_test(id)", function (e) {
+
+                    assert.ifError(e);
+                    async_done();
+                });
+            },
+            function (async_done) {
 
                 var insertQuery = "INSERT INTO date_diff_test (date1, date2) VALUES ";
                 for( var i in testDates ) {
@@ -177,6 +193,14 @@ suite( 'date tests', function() {
                 conn.queryRaw( "CREATE TABLE time_test (id int identity, test_time time, test_datetime2 datetime2, test_datetimeoffset datetimeoffset)", function( e ) {
 
                     assert.ifError( e );
+                    async_done();
+                });
+            },
+            function (async_done) {
+
+                conn.queryRaw("CREATE CLUSTERED INDEX IX_time_test ON time_test(id)", function (e) {
+
+                    assert.ifError(e);
                     async_done();
                 });
             },
@@ -429,7 +453,15 @@ suite( 'date tests', function() {
                     async_done();
                 });
             },
-            function( async_done ) {
+            function (async_done) {
+
+                conn.queryRaw("CREATE CLUSTERED INDEX IX_datetimeoffset_test ON datetimeoffset_test(id)", function (e) {
+
+                    assert.ifError(e);
+                    async_done();
+                });
+            },
+            function (async_done) {
 
                 var query = ["INSERT INTO datetimeoffset_test (test_datetimeoffset) VALUES "];
 

@@ -2,7 +2,7 @@
 // File: connect.js
 // Contents: test suite for connections
 // 
-// Copyright Microsoft Corporation and contributors
+// Copyright Microsoft Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ suite( 'open', function() {
 
     test('trusted connection to a server', function( done ) {
 
-        sql.open( "Driver={SQL Server Native Client 11.0};Server=" + config.server + ";Trusted_Connection={Yes}", 
+        sql.open(config.conn_str, 
                   function( err, conn ) {
 
                       assert.ifError( err );

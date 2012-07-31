@@ -2,7 +2,7 @@
 // File: test-config.js
 // Contents: configuration for tests
 // 
-// Copyright Microsoft Corporation and contributors
+// Copyright Microsoft Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,20 @@
 // limitations under the License.
 //---------------------------------------------------------------------------------------------------------------------------------
 
-
 // server connection info
-exports.server = '.\\SQL2008R2';
-exports.user = '<user>';
-exports.pwd = '<pwd>';
+var driver = 'SQL Server Native Client 11.0';
+var server = '(local)';
+var user = '<user>';
+var pwd = '<pwd>';
+var database = 'test';
+var useTrustedConnection = true;
+var conn_str = "Driver={" + driver + "};Server=" + server + ";" + (useTrustedConnection == true ? "Trusted_Connection={Yes};" : "UID=" + user + ";PWD=" + pwd + ";") + "Database={" + database + "};";
+
+// The following need to be exported for building connection strings within a test...
+exports.server = server;
+exports.user = user;
+exports.pwd = pwd;
+// Driver name needs to be exported for building expected error messages...
+exports.driver = driver;
+// Here's a complete connection string which can be shared by multiple tests...
+exports.conn_str = conn_str;
