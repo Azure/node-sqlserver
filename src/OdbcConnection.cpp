@@ -26,6 +26,22 @@ namespace mssql
 {
     OdbcEnvironmentHandle OdbcConnection::environment;
 
+    // bind all the parameters in the array
+    // for now they are all treated as input parameters
+    void OdbcConnection::BindParams( QueryOperation::param_bindings& params )
+    {
+        int current_param = 1;
+        for( QueryOperation::param_bindings::iterator i = params.begin(); i != params.end(); ++i ) {
+
+            SQLRETURN r = SQLBindParameter( statement, current_param++, SQL_PARAM_INPUT, i->c_type, i->sql_type, i->param_size, 
+                                            i->digits, i->buffer, i->buffer_len, &i->indptr );
+            // no need to check for SQL_STILL_EXECUTING
+            if( !SQL_SUCCEEDED( r )) {
+                statement.Throw();
+            }
+        }
+    }
+
     void OdbcConnection::InitializeEnvironment()
     {
         SQLRETURN ret = SQLSetEnvAttr(NULL, SQL_ATTR_CONNECTION_POOLING, (SQLPOINTER)SQL_CP_ONE_PER_HENV, 0);
@@ -39,103 +55,8 @@ namespace mssql
         if (!SQL_SUCCEEDED(ret)) { throw OdbcException::Create(SQL_HANDLE_ENV, environment); }
     }
 
-    bool OdbcConnection::TryClose()
+    bool OdbcConnection::StartReadingResults()
     {
-        if (connectionState != Closed)  // fast fail before critical section
-        {
-            ScopedCriticalSectionLock critSecLock( closeCriticalSection );
-            if (connectionState != Closed)
-            {
-                SQLRETURN ret = SQLDisconnect(connection);
-                if (ret == SQL_STILL_EXECUTING) 
-                { 
-                    return false; 
-                }
-                if (!SQL_SUCCEEDED(ret)) 
-                { 
-                    connection.Throw();  
-                }
-
-                resultset.reset();
-                statement.Free();
-                connection.Free();
-                connectionState = Closed;
-            }
-        }
-
-        return true;
-    }
-
-    bool OdbcConnection::TryOpen(const wstring& connectionString)
-    {
-        SQLRETURN ret;
-
-        if (connectionState == Closed)
-        {
-            OdbcConnectionHandle localConnection;
-
-            localConnection.Alloc(environment);
-
-            this->connection = std::move(localConnection);
-
-            // TODO: determine async open support correctly
-            // SQLSetConnectAttr(connection, SQL_ATTR_ASYNC_DBC_FUNCTIONS_ENABLE, (SQLPOINTER)SQL_ASYNC_DBC_ENABLE_ON, 0);
-
-            connectionState = Opening;
-        }
-
-        if (connectionState == Opening)
-        {
-            ret = SQLDriverConnect(connection, NULL, const_cast<wchar_t*>(connectionString.c_str()), connectionString.length(), NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
-            if (ret == SQL_STILL_EXECUTING) 
-            { 
-                return false; 
-            }
-            if (!SQL_SUCCEEDED(ret)) 
-            { 
-                connection.Throw();  
-            }
-
-            connectionState = Open;
-            return true;
-        }
-
-        throw OdbcException("Attempt to open a connection that is not closed");
-    }
-
-    bool OdbcConnection::TryExecute(const wstring& query)
-    {
-        if (connectionState != Open)
-        {
-            throw OdbcException("Unable to execute a query on a connection that is not open");
-        }
-
-        if (executionState == Idle)
-        {
-            statement.Alloc(connection);
-            
-            // ignore failure - optional attribute
-            SQLSetStmtAttr(statement, SQL_ATTR_ASYNC_ENABLE, (SQLPOINTER)SQL_ASYNC_ENABLE_ON, 0);
-
-            executionState = Executing;
-        }
-
-        if (executionState == Executing)
-        {
-            endOfResults = true;     // reset 
-            SQLRETURN ret = SQLExecDirect(statement, const_cast<wchar_t*>(query.c_str()), query.length());
-            if (ret == SQL_STILL_EXECUTING) 
-            { 
-                return false; 
-            }
-            if (ret != SQL_NO_DATA && !SQL_SUCCEEDED(ret)) 
-            { 
-                statement.Throw();  
-            }
-
-            executionState = CountingColumns;
-        }
-
         if (executionState == CountingColumns)
         {
             SQLSMALLINT columns;
@@ -211,6 +132,117 @@ namespace mssql
         }
 
         throw OdbcException("The connection is in an invalid state");
+    }
+
+    bool OdbcConnection::TryClose()
+    {
+        if (connectionState != Closed)  // fast fail before critical section
+        {
+            ScopedCriticalSectionLock critSecLock( closeCriticalSection );
+            if (connectionState != Closed)
+            {
+                SQLRETURN ret = SQLDisconnect(connection);
+                if (ret == SQL_STILL_EXECUTING) 
+                { 
+                    return false; 
+                }
+                if (!SQL_SUCCEEDED(ret)) 
+                { 
+                    connection.Throw();  
+                }
+
+                resultset.reset();
+                statement.Free();
+                connection.Free();
+                connectionState = Closed;
+            }
+        }
+
+        return true;
+    }
+
+    bool OdbcConnection::TryOpen(const wstring& connectionString)
+    {
+        SQLRETURN ret;
+
+        if (connectionState == Closed)
+        {
+            OdbcConnectionHandle localConnection;
+
+            localConnection.Alloc(environment);
+
+            this->connection = std::move(localConnection);
+
+            // TODO: determine async open support correctly
+            // SQLSetConnectAttr(connection, SQL_ATTR_ASYNC_DBC_FUNCTIONS_ENABLE, (SQLPOINTER)SQL_ASYNC_DBC_ENABLE_ON, 0);
+
+            connectionState = Opening;
+        }
+
+        if (connectionState == Opening)
+        {
+            ret = SQLDriverConnect(connection, NULL, const_cast<wchar_t*>(connectionString.c_str()), connectionString.length(), NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+            if (ret == SQL_STILL_EXECUTING) 
+            { 
+                return false; 
+            }
+            if (!SQL_SUCCEEDED(ret)) 
+            { 
+                connection.Throw();  
+            }
+
+            connectionState = Open;
+            return true;
+        }
+
+        throw OdbcException("Attempt to open a connection that is not closed");
+    }
+
+    bool OdbcConnection::TryExecute( const wstring& query, QueryOperation::param_bindings& paramIt )
+    {
+        if (connectionState != Open)
+        {
+            throw OdbcException("Unable to execute a query on a connection that is not open");
+        }
+
+        if (executionState == Idle)
+        {
+            statement.Alloc(connection);
+            
+            // ignore failure - optional attribute
+            SQLSetStmtAttr(statement, SQL_ATTR_ASYNC_ENABLE, (SQLPOINTER)SQL_ASYNC_ENABLE_ON, 0);
+
+            executionState = BindingParams;
+        }
+
+        if( executionState == BindingParams ) 
+        {
+            // errors thrown directly from BindParams
+            BindParams( paramIt );
+
+            executionState = Executing;
+        }
+
+        if (executionState == Executing)
+        {
+            endOfResults = true;     // reset 
+            column = 0;
+
+            SQLRETURN ret = SQLExecDirect(statement, const_cast<wchar_t*>(query.c_str()), query.length());
+
+            if (ret == SQL_STILL_EXECUTING) 
+            { 
+                return false; 
+            }
+            if (ret != SQL_NO_DATA && !SQL_SUCCEEDED(ret)) 
+            { 
+                statement.Throw();  
+            }
+
+            executionState = CountingColumns;
+        }
+
+        return StartReadingResults();
     }
 
     bool OdbcConnection::TryReadRow()
@@ -531,10 +563,10 @@ namespace mssql
             statement.Throw();
         }
 
-        endOfResults = false;
         executionState = CountingColumns;
+        endOfResults = false;
 
-        return TryExecute(L"");
+        return StartReadingResults();
     }
 
     bool OdbcConnection::TryBeginTran( void )

@@ -121,11 +121,12 @@ namespace mssql
         HandleScope scope;
 
         Local<String> query = args[0].As<String>();
-        Local<Object> callback = args[1].As<Object>();
+        Local<Array> params = args[1].As<Array>();
+        Local<Object> callback = args[2].As<Object>();
 
         Connection* connection = Unwrap<Connection>(args.This());
 
-        return scope.Close<Value>(connection->innerConnection->Query(query, callback));
+        return scope.Close<Value>(connection->innerConnection->Query(query, params, callback));
     }
     
     Handle<Value> Connection::ReadRow(const Arguments& args)

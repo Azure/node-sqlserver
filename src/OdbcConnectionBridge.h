@@ -83,12 +83,18 @@ namespace mssql
             return scope.Close(Undefined());
         }
 
-        Handle<Value> Query(Handle<String> query, Handle<Object> callback)
+        Handle<Value> Query(Handle<String> query, Handle<Array> params, Handle<Object> callback)
         {
             HandleScope scope;
 
-            Operation* operation = new QueryOperation(connection, FromV8String(query), callback);
-            Operation::Add(operation);
+            QueryOperation* operation = new QueryOperation(connection, FromV8String(query), callback);
+
+            bool bound = operation->BindParameters( params );
+
+            if( bound ) {
+
+                Operation::Add(operation);
+            }
 
             return scope.Close(Undefined());
         }

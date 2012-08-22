@@ -447,7 +447,7 @@ suite( 'date tests', function() {
             },
             function( async_done ) {
 
-                conn.queryRaw( "CREATE TABLE datetimeoffset_test (id int identity, test_datetimeoffset datetimeoffset)", function( e ) {
+                conn.query( "CREATE TABLE datetimeoffset_test (id int identity, test_datetimeoffset datetimeoffset)", function( e ) {
 
                     assert.ifError( e );
                     async_done();
@@ -501,5 +501,4 @@ suite( 'date tests', function() {
         ]);   
     });
   });
-
 });

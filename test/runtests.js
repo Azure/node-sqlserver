@@ -17,9 +17,23 @@ var fs = require('fs');
 var path = require('path');
 var config = require('./test-config');
 
+// version dependent use of existsSync
+var version = process.version.split('.');
+
+if( version[0] != 'v0' || ( version[1] != '6' && version[1] != '8' )) {
+  throw new Error( "Tests only run in node.js 0.6.x or 0.8.x" );
+}
+
+var pathExistsSync;
+if( version[1] == '8' ) {
+  pathExistsSync = fs.existsSync;
+}
+else {
+  pathExistsSync = path.existsSync;
+}
 var fileContent;
 var root = false;
-if (path.existsSync('./testlist.txt')) {
+if (pathExistsSync('./testlist.txt')) {
   fileContent = fs.readFileSync('./testlist.txt').toString();
 } else {
   fileContent = fs.readFileSync('./test/testlist.txt').toString();

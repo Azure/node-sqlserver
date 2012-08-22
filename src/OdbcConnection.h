@@ -21,6 +21,7 @@
 
 #include "ResultSet.h"
 #include "CriticalSection.h"
+#include "OdbcOperation.h"
 
 namespace mssql
 {
@@ -45,6 +46,7 @@ namespace mssql
         enum ExecutionStates
         {
             Idle,
+            BindingParams,
             Executing,
             CountingColumns,
             Metadata,
@@ -56,6 +58,8 @@ namespace mssql
 
         int column;
         bool endOfResults;
+
+        void BindParams( QueryOperation::param_bindings& params );
 
     public:
         shared_ptr<ResultSet> resultset;
@@ -70,10 +74,12 @@ namespace mssql
 
         static void InitializeEnvironment();
 
+        bool StartReadingResults();
+
         bool TryBeginTran();
         bool TryClose();
         bool TryOpen(const wstring& connectionString);
-        bool TryExecute(const wstring& query);
+        bool TryExecute( const wstring& query, QueryOperation::param_bindings& paramIt );
         bool TryEndTran(SQLSMALLINT completionType);
         bool TryReadRow();
         bool TryReadColumn(int column);

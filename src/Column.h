@@ -142,9 +142,9 @@ namespace mssql
             return scope.Close( date );
         }
 
-    private:
-
         static const int64_t NANOSECONDS_PER_MS = 1000000;                  // nanoseconds per millisecond
+
+    private:
 
         double milliseconds;
         int32_t nanoseconds_delta;    // just the fractional part of the time passed in, not since epoch time

@@ -4,3 +4,4 @@ txn.js
 datatypes.js
 compoundqueries.js
 dates.js
+params.js
