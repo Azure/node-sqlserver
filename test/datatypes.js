@@ -486,10 +486,89 @@ suite('datatypes', function () {
         // end of test():
     });
 
+// currently, buffer size is 2048 characters, so a 2048 char string should not call 'more' in the OdbcConnection.cpp, but fetch entire result set at once.
+testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) via TSQL, fetch as text';
+    test(testname, function (done) {
+        var testcolumnsize = 0;
+        var testcolumntype = " varchar(" + "max" + ")";
+        var testcolumnclienttype = "text";
+        var testcolumnname = "col2";
+        var testdata1 = null;
+        var A100CharacterString = "0234567890123456789022345678903234567890423456789052345678906234567890723456789082345678909234567890";
+        var A2000CharacterString = A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString;
+        var testdata2Expected = "AStringWith2048Characters_aaaa5aaa10aaa15aaa20aa" + A2000CharacterString;
+        var testdata2TsqlInsert = "'" + testdata2Expected + "'";
+
+        var expected = {
+            meta:
+        [{ name: 'id', size: 10, nullable: false, type: 'number' },
+        { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+            rows:
+        [[1, testdata1],
+        [2, testdata2Expected]]
+        };
+
+        async.series([
+
+        function (async_done) {
+            commonTestFns.createTable(c, tablename, testcolumnname, testcolumntype, async_done);
+        },
+        function (async_done) {
+            commonTestFns.insertDataTSQL(c, tablename, testcolumnname, testdata1, async_done);
+        },
+        function (async_done) {
+            commonTestFns.insertDataTSQL(c, tablename, testcolumnname, testdata2TsqlInsert, async_done);
+        },
+        function (async_done) {
+            commonTestFns.verifyData(c, tablename, testcolumnname, expected, testname, done);
+        },
+        ]);  // end of async.series()
+        // end of test():
+    });
+
+    // currently, buffer size is 2048 characters, so a 2049 char string should call 'more' in the OdbcConnection.cpp and concatenate to correctly return larger data
+    testname = 'test 008_bndryCheck_NVC - insert 2049 char string into nvarchar(max) via TSQL, fetch as text';
+    test(testname, function (done) {
+        var testcolumnsize = 0;
+        var testcolumntype = " nvarchar(" + "max" + ")";
+        var testcolumnclienttype = "text";
+        var testcolumnname = "col2";
+        var testdata1 = null;
+        var A100CharacterString = "0234567890123456789022345678903234567890423456789052345678906234567890723456789082345678909234567890";
+        var A2000CharacterString = A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString + A100CharacterString;
+        var testdata2Expected = "AStringWith2049Characters_aaaa5aaa10aaa15aaa20aaa" + A2000CharacterString;
+        var testdata2TsqlInsert = "'" + testdata2Expected + "'";
+
+        var expected = {
+            meta:
+        [{ name: 'id', size: 10, nullable: false, type: 'number' },
+        { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+            rows:
+        [[1, testdata1],
+        [2, testdata2Expected]]
+        };
+
+        async.series([
+
+        function (async_done) {
+            commonTestFns.createTable(c, tablename, testcolumnname, testcolumntype, async_done);
+        },
+        function (async_done) {
+            commonTestFns.insertDataTSQL(c, tablename, testcolumnname, testdata1, async_done);
+        },
+        function (async_done) {
+            commonTestFns.insertDataTSQL(c, tablename, testcolumnname, testdata2TsqlInsert, async_done);
+        },
+        function (async_done) {
+            commonTestFns.verifyData(c, tablename, testcolumnname, expected, testname, done);
+        },
+        ]);  // end of async.series()
+        // end of test():
+    });
 
     testname = 'test 009 - verify functionality of data type \'guid\', fetch as text';
     test(testname, function (done) {
-        var testcolumnsize = 0;
+        var testcolumnsize = 36;
         var testcolumntype = " uniqueidentifier";
         var testcolumnclienttype = "text";
         var testcolumnname = "col2";

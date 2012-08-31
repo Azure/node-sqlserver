@@ -298,10 +298,11 @@ namespace mssql
         case SQL_WCHAR:
         case SQL_WVARCHAR:
         case SQL_WLONGVARCHAR:
+        case SQL_SS_XML:
             {
                 bool more = false;
                 wchar_t buffer[2048+1] = {0};
-                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer, sizeof(buffer)-sizeof(wchar_t), &strLen_or_IndPtr);
+                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer, sizeof(buffer), &strLen_or_IndPtr);
                 if (ret == SQL_STILL_EXECUTING) 
                 { 
                     return false; 
@@ -517,11 +518,9 @@ namespace mssql
             }
             break;
         case SQL_GUID:
-        default:
             {
-                // TODO: how to figure out the size?
-                vector<wchar_t> buffer(8192+1);
-                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer.data(), 8192*sizeof(wchar_t), &strLen_or_IndPtr);
+                vector<wchar_t> buffer(36+1);
+                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer.data(), (36+1)*sizeof(wchar_t), &strLen_or_IndPtr);
                 if (ret == SQL_STILL_EXECUTING) 
                 { 
                     return false; 
@@ -530,7 +529,31 @@ namespace mssql
                 { 
                     statement.Throw();  
                 }
-                                
+                if (strLen_or_IndPtr == SQL_NULL_DATA) 
+                {
+                    resultset->SetColumn(make_shared<NullColumn>());
+                    break;
+                }
+                resultset->SetColumn(make_shared<StringColumn>(buffer.data(), false));
+            }
+            break;
+        default:
+            {
+                // TODO: how to figure out the size?
+                vector<wchar_t> buffer(8192+1);
+                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer.data(), (8192+1)*sizeof(wchar_t), &strLen_or_IndPtr);
+                if (ret == SQL_STILL_EXECUTING) 
+                { 
+                    return false; 
+                }
+                if (!SQL_SUCCEEDED(ret)) 
+                { 
+                    statement.Throw();  
+                }
+                if (strLen_or_IndPtr == SQL_NULL_DATA) 
+                {
+                    resultset->SetColumn(make_shared<NullColumn>());
+                }                                
                 resultset->SetColumn(make_shared<StringColumn>(buffer.data(), false));
             }
             break;

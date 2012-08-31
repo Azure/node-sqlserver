@@ -29,12 +29,6 @@ var SKIP_BINDPARAM_TEST_CASES = true;
 // Need to change this to false to verify failing/haning tests are fixed
 var SKIP_FAILING_HANGING_TEST_CASES = true;
 
-// Need to skip failing tests until bugs are fixed:
-// Issue # 34: insert 'null' into 'guid' column, fetches data as empty string instead of null
-var SKIP_FAILING_TEST_ISSUE_34 = true;
-// Issue # 36: insert 'null' into 'xml' column, fetches data as empty string instead of null
-var SKIP_FAILING_TEST_ISSUE_36 = true;
-
 // To print extended debugging information regarding what test cases are doing, set this parameter to 'true', else false
 var writeDebugComments = false;
 
@@ -231,6 +225,7 @@ function verifyData(Connection, TableName, ColumnName, ExpectedData, testname, d
                 return;
             }
             try {
+                debugComments("\ntest note verifyData_CommonTestFunctions.js returned results: \n" + util.inspect(r.rows[1]));
                 assert.deepEqual(r, ExpectedData, dataComparisonFailed);
             }
             catch (assert) {
@@ -317,5 +312,3 @@ exports.verifyData = verifyData;
 exports.verifyData_Datetime = verifyData_Datetime;
 exports.SKIP_BINDPARAM_TEST_CASES = SKIP_BINDPARAM_TEST_CASES;
 exports.SKIP_FAILING_HANGING_TEST_CASES = SKIP_FAILING_HANGING_TEST_CASES;
-exports.SKIP_FAILING_TEST_ISSUE_34 = SKIP_FAILING_TEST_ISSUE_34;
-exports.SKIP_FAILING_TEST_ISSUE_36 = SKIP_FAILING_TEST_ISSUE_36;

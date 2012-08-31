@@ -41,6 +41,8 @@ namespace mssql
             case SQL_WCHAR:
             case SQL_WVARCHAR:
             case SQL_WLONGVARCHAR:
+            case SQL_GUID:
+            case SQL_SS_XML:
                 typeName = L"text";
                 break;
             case SQL_BIT:
@@ -67,9 +69,10 @@ namespace mssql
             case SQL_BINARY:
             case SQL_VARBINARY:
             case SQL_LONGVARBINARY:
-            case SQL_GUID:
-            default:
                 typeName = L"binary";
+                break;
+            default:
+                typeName = L"text";
                 break;
             }
 
