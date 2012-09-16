@@ -37,15 +37,11 @@ namespace mssql
 
     void OdbcOperation::InvokeBackground()
     {
-        try
-        {
-            completed = TryInvokeOdbc();
-        }
-        catch (exception& error)
-        {
-            completed = true;
-            failed = true;
-            failure = error;
+        failed = !TryInvokeOdbc();
+
+        if( failed ) {
+
+            failure = connection->LastError();
         }
     }
 
@@ -57,22 +53,17 @@ namespace mssql
         {
             int argc;
             Local<Value> args[3];
-            if (!completed) {
-                args[0] = Local<Value>::New(Boolean::New(false));
-                argc = 1;
-            }
-            else if (failed)
+            if( failed )
             {
-                args[0] = Local<Value>::New(Boolean::New(true));
-                args[1] = Exception::Error(String::New(failure.what()));
-                argc = 2;
+                // TODO: Change this to return an object with 3 keys, message, sqlstate and code from the OdbcError
+                args[0] = Exception::Error( String::New( failure->Message() ) );
+                argc = 1;
             }
             else
             {
-                args[0] = Local<Value>::New(Boolean::New(true));
-                args[1] = Local<Value>::New(Undefined());
-                args[2] = Local<Value>::New(CreateCompletionArg());
-                argc = 3;
+                args[0] = Local<Value>::New( Boolean::New( false ));
+                args[1] = Local<Value>::New( CreateCompletionArg() );
+                argc = 2;
             }
 
             callback->Call(Undefined().As<Object>(), argc, args);
@@ -178,11 +169,9 @@ namespace mssql
 
                         params.clear();
 
-                        int argc = 2;
-                        Local<Value> args[2];
-                        args[0] = Local<Value>::New(Boolean::New(true));
-                        // TODO: Change this to return an object with 3 keys, message, sqlstate and code from the OdbcError
-                        args[1] = Exception::Error( String::New( "IMNOD: [node-sqlserver]Invalid number parameter" ) );
+                        int argc = 1;
+                        Local<Value> args[1];
+                        args[0] = Exception::Error( String::New( "IMNOD: [node-sqlserver]Invalid number parameter" ) );
 
                         // this is okay because we're still on the node.js thread, not on the background thread
                         callback->Call(Undefined().As<Object>(), argc, args);

@@ -30,6 +30,14 @@ namespace mssql
     {
         HandleScope scope;
 
+        bool initialized = OdbcConnection::InitializeEnvironment();
+        if( !initialized ) {
+            
+            target->Set( String::NewSymbol("Connection"), Undefined() );
+            v8::ThrowException(v8::Exception::Error(v8::String::New("Unable to intialize node-sqlserver")));
+            return;
+        }
+
         Local<FunctionTemplate> t = FunctionTemplate::New(Connection::New);
         constructor_template = Persistent<FunctionTemplate>::New(t);
         constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
@@ -47,8 +55,6 @@ namespace mssql
         NODE_SET_PROTOTYPE_METHOD(constructor_template, "nextResult", Connection::ReadNextResult);
 
         target->Set(String::NewSymbol("Connection"), constructor_template->GetFunction());
-
-        OdbcConnection::InitializeEnvironment();
     }
 
     Connection::~Connection( void )

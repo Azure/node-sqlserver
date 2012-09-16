@@ -32,21 +32,24 @@ namespace mssql
 
     class OdbcOperation : public Operation
     {
+
     protected:
+
         shared_ptr<OdbcConnection> connection;
         Persistent<Function> callback;
 
     private:
+
         bool failed;
-        bool completed;
-        exception failure;
+        shared_ptr<OdbcError> failure;
 
     public:
+
         OdbcOperation(shared_ptr<OdbcConnection> connection, Handle<Object> callback)
             : connection(connection), 
               callback(Persistent<Function>::New(callback.As<Function>())),
               failed(false),
-              completed(false)
+              failure(nullptr)
         {
         }
 

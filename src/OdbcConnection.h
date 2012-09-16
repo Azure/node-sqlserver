@@ -30,10 +30,16 @@ namespace mssql
     class OdbcConnection
     {
     private:
+
         static OdbcEnvironmentHandle environment;
+
         OdbcConnectionHandle connection;
         OdbcStatementHandle statement;
         CriticalSection closeCriticalSection;
+
+        // any error that occurs when a Try* function returns false is stored here
+        // and may be retrieved via the Error function below.
+        shared_ptr<OdbcError> error;
 
         enum ConnectionStates
         {
@@ -43,36 +49,23 @@ namespace mssql
             Open
         } connectionState;
 
-        enum ExecutionStates
-        {
-            Idle,
-            BindingParams,
-            Executing,
-            CountingColumns,
-            Metadata,
-            CountRows,
-            FetchRow,
-            FetchColumn,
-            NextResults
-        } executionState;
-
         int column;
         bool endOfResults;
 
-        void BindParams( QueryOperation::param_bindings& params );
+        bool BindParams( QueryOperation::param_bindings& params );
 
     public:
         shared_ptr<ResultSet> resultset;
 
         OdbcConnection()
             : connectionState(Closed),
-              executionState(Idle),
+              error(NULL),
               column(0),
               endOfResults(true)
         {
         }
 
-        static void InitializeEnvironment();
+        static bool InitializeEnvironment();
 
         bool StartReadingResults();
 
@@ -111,6 +104,11 @@ namespace mssql
             result->Set(New(L"data"), column->ToValue());
             result->Set(New(L"more"), Boolean::New(column->More()));
             return scope.Close(result);
+        }
+
+        shared_ptr<OdbcError> LastError( void )
+        {
+            return error;
         }
     };
 

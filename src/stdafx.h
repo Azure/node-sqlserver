@@ -36,7 +36,7 @@
 #include <numeric>
 
 #include "Utility.h"
-#include "OdbcException.h"
+#include "OdbcError.h"
 #include "OdbcHandle.h"
 
 #define interface struct 	// for the COM interfaces in sqlncli.h and to avoid including extra files
