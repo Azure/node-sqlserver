@@ -366,4 +366,104 @@ suite('query', function () {
         });
     });
 
+    test( 'test retrieving a string with null embedded', function( test_done ) {
+
+        sql.open( conn_str, function( e, c ) {
+
+            assert.ifError( e );
+
+            var embedded_null = String.fromCharCode( 65, 66, 67, 68, 0, 69, 70 );
+
+            async.series([
+                function( async_done ) {
+
+                    c.queryRaw( "DROP TABLE null_in_string_test", function( e ) { async_done(); } );
+                },
+
+                function( async_done ) {
+
+                    c.queryRaw( "CREATE TABLE null_in_string_test (id int IDENTITY, null_in_string varchar(100) NOT NULL)", 
+                                function( e ) {
+
+                                    assert.ifError( e );
+
+                                    async_done();
+                                });
+                },
+                function (async_done) {
+
+                    c.queryRaw("CREATE CLUSTERED INDEX ix_null_in_string_test ON null_in_string_Test (id)", function (err) {
+        
+                        assert.ifError(err);
+                        async_done();
+                    });
+                },
+                function( async_done ) {
+
+                    c.queryRaw( "INSERT INTO null_in_string_test (null_in_string) VALUES (?)", [ embedded_null ], 
+                                function( e, r ) {
+
+                                    assert.ifError( e );
+
+                                    async_done();
+                                });
+                },
+
+                function( async_done ) {
+
+                    c.queryRaw( "SELECT null_in_string FROM null_in_string_test", function( e, r ) {
+
+                        assert.ifError( e );
+
+                        assert( r.rows[0] == embedded_null );
+
+                        async_done();
+                        test_done();
+                    });
+                },
+            ]);
+        });
+    })
+
+    test( 'test retrieving a non-LOB string of max size', function( test_done ) {
+
+        String.prototype.repeat = function( num )
+        {
+            return new Array( num + 1 ).join( this );
+        }
+
+        sql.query( conn_str, "SELECT REPLICATE('A', 8000) AS 'NONLOB String'", function( e, r ) {
+
+            assert.ifError( e );
+
+            assert( r[0]['NONLOB String'] == 'A'.repeat( 8000 ));
+            test_done();
+        });
+    });
+
+    test( 'test retrieving an empty string', function( test_done ) {
+
+        sql.query( conn_str, "SELECT '' AS 'Empty String'", function( e, r ) {
+
+            assert.ifError( e );
+
+            assert( r[0]['Empty String'] == '');
+            test_done();
+        });
+    });
+
+    test( 'test retrieving a LOB string larger than max string size', function( test_done ) {
+
+        var moreCount = 0;
+        var totalLength = 0;
+
+        var stmt = sql.query( conn_str, "SELECT REPLICATE(CAST('B' AS varchar(max)), 20000) AS 'LOB String'" );
+
+        stmt.on('column', function( c, d, m ) { assert( c == 0 ); totalLength += d.length; if( m ) { ++moreCount } });
+        stmt.on('done', function() { assert( moreCount == 2, "more not received 2 times" ); 
+                                     assert( totalLength == 20000, "length != 20000" ); 
+                                     test_done(); });
+        stmt.on('error', function( e ) { assert.ifError( e ) });
+    });
+
 });

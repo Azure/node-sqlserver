@@ -33,19 +33,27 @@ namespace mssql
     class StringColumn : public Column
     {
     public:
-        StringColumn(const wchar_t* text, bool more) : text(text), more(more) {}
+
+        typedef std::vector<uint16_t> StringValue;
+
+        StringColumn( unique_ptr<StringValue>& text, bool more ) :
+            more(more) 
+        {
+            swap( this->text, text );
+        }
+
         Handle<Value> ToValue()
         {
             HandleScope scope;
-            return scope.Close(String::New(reinterpret_cast<const uint16_t*>(text.c_str()), text.length()));
+
+            return scope.Close(String::New( text->data(), text->size() ));
         }
-        void Add(const wchar_t* additionalText)
-        {
-            text.append(additionalText);
-        }
+
         bool More() const { return more; }
+
     private:
-        wstring text;
+
+        unique_ptr<StringValue> text;
         bool more;
     };
     

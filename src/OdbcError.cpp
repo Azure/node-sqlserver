@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------------------------------------------------------
-// File: OdbcError.h
-// Contents: Object that represents ODBC errors
+// File: OdbcError.cpp
+// Contents: Custom errors for this driver
 // 
 // Copyright Microsoft Corporation and contributors
 //
@@ -17,44 +17,12 @@
 // limitations under the License.
 //--------------------------------------------------------------------------------------------------------------------------------
 
-#pragma once
+#include "stdafx.h"
 
-namespace mssql
-{
-    using namespace std;
+// list of node-sqlserver specific errors
+namespace mssql {
 
-    class OdbcError
-    {
-    public:
-
-        OdbcError( const char* sqlstate, const char* message, SQLINTEGER code )
-           : sqlstate( sqlstate ), message(message), code(code)
-        {
-        }
-
-        const char* Message( void ) const
-        {
-            return message.c_str();
-        }
-
-        const char* SqlState( void ) const
-        {
-            return sqlstate.c_str();
-        }
-
-        SQLINTEGER Code( void ) const
-        {
-            return code;
-        }
-
-        // list of node-sqlserver specific errors
-        static OdbcError NODE_SQL_NO_DATA;
-
-    private:
-
-        string message;
-        string sqlstate;
-        SQLINTEGER code;
-    };
-
+	// error returned when a string returns no data but it's not a NULL field
+	// ODBC returns SQL_NO_DATA so we translate this into an error and return it to node.js
+    OdbcError OdbcError::NODE_SQL_NO_DATA = OdbcError( "IMNOD", "No data returned", 1 );
 }

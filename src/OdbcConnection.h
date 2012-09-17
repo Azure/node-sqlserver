@@ -54,6 +54,9 @@ namespace mssql
 
         bool BindParams( QueryOperation::param_bindings& params );
 
+        // set binary true if a binary Buffer should be returned instead of a JS string
+        bool TryReadString( bool binary, int column ); 
+
     public:
         shared_ptr<ResultSet> resultset;
 

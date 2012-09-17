@@ -33,8 +33,30 @@
 // boilerplate macro for checking for ODBC errors in this file
 #define CHECK_ODBC_ERROR( r, handle ) { if( !SQL_SUCCEEDED( r ) ) { RETURN_ODBC_ERROR( handle ); } }
 
+// boilerplate macro for checking if SQL_NO_DATA was returned for field data
+#define CHECK_ODBC_NO_DATA( r, handle ) {                                                                 \
+    if( r == SQL_NO_DATA ) {                                                                              \
+        error = make_shared<OdbcError>( OdbcError::NODE_SQL_NO_DATA.SqlState(), OdbcError::NODE_SQL_NO_DATA.Message(), \
+            OdbcError::NODE_SQL_NO_DATA.Code() );                                                         \
+        handle.Free();                                                                                    \
+        return false;                                                                                     \
+     } }
+
+// to use with numeric_limits below
+#undef max
+
 namespace mssql
 {
+    // internal constants
+    namespace {
+
+        // max characters within a (var)char field in SQL Server
+        const int SQL_SERVER_MAX_STRING_SIZE = 8000;
+
+        // default size to retrieve from a LOB field and we don't know the size
+        const int LOB_PACKET_SIZE = 8192;
+    }
+
     OdbcEnvironmentHandle OdbcConnection::environment;
 
     // bind all the parameters in the array
@@ -171,6 +193,8 @@ namespace mssql
 
     bool OdbcConnection::TryReadRow()
     {
+        column = 0; // reset
+
         SQLRETURN ret = SQLFetch(statement);
         if (ret == SQL_NO_DATA) 
         { 
@@ -201,28 +225,11 @@ namespace mssql
         case SQL_WVARCHAR:
         case SQL_WLONGVARCHAR:
         case SQL_SS_XML:
+        case SQL_GUID:
             {
-                bool more = false;
-                wchar_t buffer[2048+1] = {0};
-                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer, sizeof(buffer), &strLen_or_IndPtr);
-                CHECK_ODBC_ERROR( ret, statement );
-                if (strLen_or_IndPtr == SQL_NULL_DATA) 
-                {
-                    resultset->SetColumn(make_shared<NullColumn>());
-                }
-                else 
-                {
-                    SQLWCHAR SQLState[6];
-                    SQLINTEGER nativeError;
-                    SQLSMALLINT textLength;
-                    if (ret == SQL_SUCCESS_WITH_INFO)
-                    {
-                        ret = SQLGetDiagRec(SQL_HANDLE_STMT, statement, 1, SQLState, &nativeError, NULL, 0, &textLength);
-                        CHECK_ODBC_ERROR( ret, statement );
-                        more = wcsncmp(SQLState, L"01004", 6) == 0;
-                    }
-
-                    resultset->SetColumn(make_shared<StringColumn>(buffer, more));
+                bool read = TryReadString( false, column );
+                if( !read ) {
+                    return false;
                 }
             }
             break;
@@ -364,38 +371,98 @@ namespace mssql
                 resultset->SetColumn( make_shared<TimestampColumn>( datetime ));
             }
             break;
-        case SQL_GUID:
-            {
-                vector<wchar_t> buffer(36+1);
-                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer.data(), (36+1)*sizeof(wchar_t), &strLen_or_IndPtr);
-                CHECK_ODBC_ERROR( ret, statement );
-                if (strLen_or_IndPtr == SQL_NULL_DATA) 
-                {
-                    resultset->SetColumn(make_shared<NullColumn>());
-                    break;
-                }
-
-                resultset->SetColumn(make_shared<StringColumn>(buffer.data(), false));
-            }
-            break;
         default:
-            {
-                // TODO: how to figure out the size?
-                vector<wchar_t> buffer(8192+1);
-                SQLRETURN ret = SQLGetData(statement, column + 1, SQL_C_WCHAR, buffer.data(), (8192+1)*sizeof(wchar_t), &strLen_or_IndPtr);
-                CHECK_ODBC_ERROR( ret, statement );
-                if (strLen_or_IndPtr == SQL_NULL_DATA) 
-                {
-                    resultset->SetColumn(make_shared<NullColumn>());
-                    break;
-                }
-                                
-                resultset->SetColumn(make_shared<StringColumn>(buffer.data(), false));
-            }
-            break;
+            // this shouldn't ever be hit.  Every T-SQL type should be covered above.
+            assert( false );
+            return false;
         }
 
         return true;
+    }
+
+    bool OdbcConnection::TryReadString( bool binary, int column )
+    {
+        SQLLEN display_size = 0;
+        unique_ptr<StringColumn::StringValue> value( new StringColumn::StringValue() );
+        SQLLEN value_len = 0;
+        SQLRETURN r = SQL_SUCCESS;
+
+        r = SQLColAttribute( statement, column + 1, SQL_DESC_DISPLAY_SIZE, NULL, 0, NULL, &display_size );
+        CHECK_ODBC_ERROR( r, statement );
+
+        // when a field type is LOB, we read a packet at time and pass that back.
+        if( display_size == 0 || display_size == std::numeric_limits<int>::max() || 
+            display_size == std::numeric_limits<int>::max() >> 1 || 
+            display_size == std::numeric_limits<unsigned long>::max() - 1 ) {
+
+            bool more = false;
+
+            value_len = LOB_PACKET_SIZE + 1;
+
+            value->resize( value_len );
+
+            SQLRETURN r = SQLGetData( statement, column + 1, SQL_C_WCHAR, value->data(), value_len * 
+                sizeof( StringColumn::StringValue::value_type ), &value_len );
+
+            CHECK_ODBC_NO_DATA( r, statement );
+            CHECK_ODBC_ERROR( r, statement );
+
+            if( value_len == SQL_NULL_DATA ) {
+
+                resultset->SetColumn( make_shared<NullColumn>());
+                return true;          
+            }
+
+            // an unknown amount is left on the field so no total was returned
+            if( value_len == SQL_NO_TOTAL || value_len / sizeof( StringColumn::StringValue::value_type ) > LOB_PACKET_SIZE ) {
+
+                more = true;
+                value->resize( LOB_PACKET_SIZE );
+            }
+            else {
+
+                // value_len is in bytes
+                value->resize( value_len / sizeof( StringColumn::StringValue::value_type ));
+                more = false;
+            }
+
+            resultset->SetColumn( make_shared<StringColumn>( value, more ));
+
+            return true;
+        }
+        else if( display_size >= 1 && display_size <= SQL_SERVER_MAX_STRING_SIZE ) {
+
+            display_size++;                 // increment for null terminator
+            value->resize( display_size );
+
+            SQLRETURN r = SQLGetData( statement, column + 1, SQL_C_WCHAR, value->data(), display_size * 
+                                      sizeof( StringColumn::StringValue::value_type ), &value_len );
+            CHECK_ODBC_ERROR( r, statement );
+            CHECK_ODBC_NO_DATA( r, statement );
+
+            if( value_len == SQL_NULL_DATA ) {
+
+                resultset->SetColumn(make_shared<NullColumn>());
+                return true;          
+            }
+
+            assert( value_len % 2 == 0 );   // should always be even
+            value_len /= sizeof( StringColumn::StringValue::value_type );
+
+            assert( value_len >= 0 && value_len <= display_size - 1 );
+            value->resize( value_len );
+
+            resultset->SetColumn( make_shared<StringColumn>( value, false ));
+
+            return true;
+        }
+        else {
+
+            assert( false );
+
+        }
+
+        return false;
     }
 
     bool OdbcConnection::TryReadNextResult()
