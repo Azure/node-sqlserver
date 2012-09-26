@@ -55,8 +55,10 @@ namespace mssql
             Local<Value> args[3];
             if( failed )
             {
-                // TODO: Change this to return an object with 3 keys, message, sqlstate and code from the OdbcError
-                args[0] = Exception::Error( String::New( failure->Message() ) );
+                Local<Object> err = Local<Object>::Cast( Exception::Error( String::New( failure->Message() )));
+                err->Set( String::NewSymbol( "sqlstate" ), String::New( failure->SqlState() ));
+                err->Set( String::NewSymbol( "code" ), Integer::New( failure->Code() ));
+                args[0] = err;
                 argc = 1;
             }
             else

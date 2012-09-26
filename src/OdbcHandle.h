@@ -105,7 +105,7 @@ namespace mssql
             assert( SQL_SUCCEEDED( ret ));
 
             string sqlstate = w2a(wszSqlState);
-            string message = sqlstate + ": " + w2a(buffer.data());
+            string message = w2a(buffer.data());
             return make_shared<OdbcError>( sqlstate.c_str(), message.c_str(), nativeError );
         }
 

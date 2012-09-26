@@ -168,6 +168,10 @@ suite('query', function () {
 
             assert.ifError( e );
 
+            var  expectedError = new Error( "[Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'." );
+            expectedError.sqlstate = '42000';
+            expectedError.code = 105;
+
             async.series( [
 
                 function( async_done ) {
@@ -176,8 +180,8 @@ suite('query', function () {
 
                         c.queryRaw( "I'm with NOBODY", function( e, r ) {
 
-                            assert.equal( e.toString(),
-                                          "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
+                            assert( e instanceof Error );
+                            assert.deepEqual( e, expectedError, "Unexpected error returned" );
                             async_done();
                         });
                     });
@@ -190,45 +194,8 @@ suite('query', function () {
                         var s = c.queryRaw( "I'm with NOBODY" );
                         s.on( 'error', function( e ) {
 
-                            assert.equal(e.toString(), "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
-                            async_done();
-                            done();
-                        });
-                    });
-                }
-            ]);
-        });
-    });
-
-    test( 'query with errors', function( done ) {
-
-        var c = sql.open( conn_str, function( e ) {
-
-            assert.ifError( e );
-
-            async.series( [
-
-                function( async_done ) {
-
-                    assert.doesNotThrow( function() {
-
-                        c.queryRaw( "I'm with NOBODY", function( e, r ) {
-
-                            assert.equal( e.toString(),
-                                          "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
-                            async_done();
-                        });
-                    });
-                },
-
-                function( async_done ) {
-
-                    assert.doesNotThrow( function() {
-
-                        var s = c.queryRaw( "I'm with NOBODY" );
-                        s.on( 'error', function( e ) {
-
-                            assert.equal(e.toString(), "Error: 42000: [Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with NOBODY'.");
+                            assert( e instanceof Error );
+                            assert.deepEqual( e, expectedError, "Unexpected error returned" );
                             async_done();
                             done();
                         });

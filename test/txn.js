@@ -212,8 +212,11 @@ suite( 'txn', function() {
                     // events are emitted before callbacks are called currently
                     q.on('error', function( err ) {
 
-                        var expected = "Error: 42S22: [Microsoft][" + config.driver + "][SQL Server]Invalid column name 'naem'.";
-                        assert.equal( err.toString(), expected, "Transaction should have caused an error" );
+                        var  expected = new Error( "[Microsoft][" + config.driver + "][SQL Server]Unclosed quotation mark after the character string 'm with STUPID'." );
+                        expected.sqlstate = '42S22';
+                        expected.code = 207;
+
+                        assert.deepEqual( err, expected, "Transaction should have caused an error" );
 
                         conn.rollback( function( err ) { 
                             assert.ifError( err );

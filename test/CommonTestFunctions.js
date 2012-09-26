@@ -197,14 +197,14 @@ function invalidQueryTSQL(Connection, tsql, ExpectedError, testname, done) {
         if (e) {
             debugComments("\ninvalid query failed as expected \n");
             try {
-                assert.equal(e.toString(), ExpectedError, "Expected error strings don't match \n");
+                assert.deepEqual(e, ExpectedError, "Expected error didn't match \n");
             }
             catch (assert) {
 
-                errorComments("\nTEST FAILED, Expected error strings don't match, Test Case: \n'" + testname + "' \n");
+                errorComments("\nTEST FAILED, Expected error didn't match, Test Case: \n'" + testname + "' \n");
                 errorComments("\nExpected: \n" + ExpectedError);
-                errorComments("\nReceived: \n" + e.toString());
-                done(new Error("\nxxxTEST FAILED, Expected error strings don't match, Test Case: \n'" + testname + "' \n"));
+                errorComments("\nReceived: \n" + e);
+                done(new Error("\nxxxTEST FAILED, Expected error didn't match, Test Case: \n'" + testname + "' \n"));
                 return;
             }
             e = null;

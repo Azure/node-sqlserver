@@ -217,7 +217,9 @@ suite('compoundqueries', function () {
             rows:
     []
         };
-        var expectedError = "Error: 42S02: [Microsoft][" + config.driver + "][SQL Server]Invalid object name '" + invalidtablename + "'.";
+        var expectedError = new Error( "[Microsoft][" + config.driver + "][SQL Server]Invalid object name '" + invalidtablename + "'." );
+        expectedError.sqlstate = '42S02';
+        expectedError.code = 208;
 
         async.series([
 
