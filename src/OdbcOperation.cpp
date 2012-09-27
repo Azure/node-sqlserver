@@ -213,22 +213,9 @@ namespace mssql
                     assert( !dateObject.IsEmpty() );
                     // dates in JS are stored internally as ms count from Jan 1, 1970
                     double d = dateObject->NumberValue();
-                    int64_t t_ms = static_cast<int64_t>( d );
-                    int64_t t_s = t_ms / 1000;
-                    errno_t e;
-                    e = _gmtime64_s( &tm, &t_s ); 
-                    assert( e == 0 );
                     SQL_SS_TIMESTAMPOFFSET_STRUCT* sql_tm = new SQL_SS_TIMESTAMPOFFSET_STRUCT;
-                    sql_tm->year = tm.tm_year + 1900;
-                    sql_tm->month = tm.tm_mon + 1;
-                    sql_tm->day = tm.tm_mday;
-                    sql_tm->hour = tm.tm_hour;
-                    sql_tm->minute = tm.tm_min;
-                    sql_tm->second = tm.tm_sec;
-                    // SQL Server has 100 nanosecond resolution, so we adjust the milliseconds to high bits
-                    sql_tm->fraction = ( t_ms % 1000 ) * TimestampColumn::NANOSECONDS_PER_MS;
-                    sql_tm->timezone_hour = 0;
-                    sql_tm->timezone_minute = 0;
+                    TimestampColumn sql_date( d );
+                    sql_date.ToTimestampOffset( *sql_tm );
 
                     binding.c_type = SQL_C_BINARY;
                     // TODO: Determine proper SQL type based on version of server we're talking to

@@ -137,6 +137,13 @@ namespace mssql
         {
             MillisecondsFromDate( timeStruct );
         }
+
+        TimestampColumn( double ms, int32_t delta = 0 ) :
+            milliseconds( ms ),
+            nanoseconds_delta( delta )
+        {
+        }
+
         Handle<Value> ToValue()
         {
             HandleScope scope;
@@ -150,6 +157,11 @@ namespace mssql
             return scope.Close( date );
         }
 
+        void ToTimestampOffset( SQL_SS_TIMESTAMPOFFSET_STRUCT& date )
+        {
+            DateFromMilliseconds( date );
+        }
+
         static const int64_t NANOSECONDS_PER_MS = 1000000;                  // nanoseconds per millisecond
 
     private:
@@ -158,54 +170,17 @@ namespace mssql
         int32_t nanoseconds_delta;    // just the fractional part of the time passed in, not since epoch time
 
         // return the number of days since Jan 1, 1970
-        double DaysSinceEpoch( SQLSMALLINT y, SQLUSMALLINT m, SQLUSMALLINT d )
-        {
-            // table derived from ECMA 262 15.9.1.4
-            static const double days_in_months[] = { 0.0, 31.0, 59.0, 90.0, 120.0, 151.0, 181.0, 212.0, 243.0, 273.0, 304.0, 334.0 };
-
-            double days;
-
-            // calculate the number of days to the start of the year
-            days = 365.0 * (y-1970.0) + floor((y-1969.0)/4.0) - floor((y-1901.0)/100.0) + floor((y-1601.0)/400.0);
-
-            // add in the number of days from the month
-            days += days_in_months[ m - 1 ];
-
-            // and finally add in the day from the date to the number of days elapsed
-            days += d - 1.0;
-
-            // account for leap year this year (affects days after Feb. 29)
-            if((( y % 4 == 0 && y % 100 != 0 ) || y % 400 == 0 ) && m > 2 ) {
-                days += 1.0;
-            }
-
-            return (double) floor( days );
-        }
+        double DaysSinceEpoch( SQLSMALLINT y, SQLUSMALLINT m, SQLUSMALLINT d );
 
         // derived from ECMA 262 15.9
-        void MillisecondsFromDate( SQL_SS_TIMESTAMPOFFSET_STRUCT const& timeStruct )
-        {
-            const double MS_PER_SECOND      = 1000.0;
-            const double MS_PER_MINUTE      = 60.0 * MS_PER_SECOND;
-            const double MS_PER_HOUR        = 60.0 * MS_PER_MINUTE;
-            const double MS_PER_DAY         = 24.0 * MS_PER_HOUR;
+        void MillisecondsFromDate( SQL_SS_TIMESTAMPOFFSET_STRUCT const& timeStruct );
 
-            double ms = DaysSinceEpoch( timeStruct.year, timeStruct.month, timeStruct.day );
-            ms *= MS_PER_DAY;
+        // return the year from the epoch time.  The remainder is returned in the day parameter
+        int64_t YearFromDay( int64_t& day );
 
-            // add in the hour, day minute, second and millisecond
-            // TODO: How to handle the loss of precision from the datetimeoffset fields?
-            ms += timeStruct.hour * MS_PER_HOUR + timeStruct.minute * MS_PER_MINUTE + timeStruct.second * MS_PER_SECOND;
-            ms += timeStruct.fraction / NANOSECONDS_PER_MS;    // fraction is in nanoseconds
-
-            // handle timezone adjustment to UTC
-            ms += timeStruct.timezone_hour * MS_PER_HOUR;
-            ms += timeStruct.timezone_minute * MS_PER_MINUTE;
-
-            milliseconds = ms;
-
-            nanoseconds_delta = timeStruct.fraction % NANOSECONDS_PER_MS;
-        }
+        // calculate the individual components of a date from the total milliseconds
+        // since Jan 1, 1970
+        void DateFromMilliseconds( SQL_SS_TIMESTAMPOFFSET_STRUCT& date );
     };
 
     class BoolColumn : public Column
@@ -220,4 +195,5 @@ namespace mssql
     private:
         bool value;
     };
-}
+
+}   // namespace mssql

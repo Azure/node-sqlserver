@@ -4,6 +4,7 @@
       'target_name': 'sqlserver',
 
       'sources': [ 
+        'src/Column.cpp',
         'src/Connection.cpp',
         'src/OdbcConnection.cpp',
         'src/OdbcError.cpp',

@@ -516,4 +516,76 @@ suite( 'params', function() {
             test_done );
     });
 
+    test( 'verify js date inserted into datetime field', function( test_done ) {
+
+        var localDate = new Date();
+        var utcDate = new Date( Date.UTC( localDate.getUTCFullYear(), 
+                                          localDate.getUTCMonth(),
+                                          localDate.getUTCDate(),
+                                          localDate.getUTCHours(),
+                                          localDate.getUTCMinutes(),
+                                          localDate.getUTCSeconds(),
+                                          localDate.getUTCMilliseconds() ));
+
+        testBoilerPlate( "datetime_test", { "datetime_test" : "datetime" },
+
+            function( done ) {
+
+                c.queryRaw( "INSERT INTO datetime_test (datetime_test) VALUES (?)", [ utcDate ], function( e, r ) {
+
+                    assert.ifError( e );
+                    assert( r.rowcount == 1 );
+
+                    done();
+                }); 
+            },
+            function( done ) {
+
+                c.queryRaw( "SELECT * FROM datetime_test", function( e, r ) {
+
+                    assert.ifError( e );
+                    assert( r.rows[0][0], utcDate );
+
+                    done();
+                }); 
+            },
+            test_done );
+    });
+
+    test( 'verify js date before 1970 inserted into datetime field', function( test_done ) {
+
+        var ancientDate = new Date( 1492, 10, 11, 6, 32, 46, 578 );
+        var utcDate = new Date( Date.UTC( ancientDate.getUTCFullYear(), 
+                                          ancientDate.getUTCMonth(),
+                                          ancientDate.getUTCDate(),
+                                          ancientDate.getUTCHours(),
+                                          ancientDate.getUTCMinutes(),
+                                          ancientDate.getUTCSeconds(),
+                                          ancientDate.getUTCMilliseconds() ));
+
+        testBoilerPlate( 'datetime_test', { 'datetime_test' : 'datetimeoffset(3)' },
+
+            function( done ) {
+
+                c.queryRaw( "INSERT INTO datetime_test (datetime_test) VALUES (?)", [ utcDate ], function( e, r ) {
+
+                    assert.ifError( e );
+                    assert( r.rowcount == 1 );
+
+                    done();
+                }); 
+            },
+            function( done ) {
+
+                c.queryRaw( "SELECT datetime_test FROM datetime_test", function( e, r ) {
+
+                    assert.ifError( e );
+                    assert.equal( r.rows[0][0].valueOf(), utcDate.valueOf() );
+
+                    done();
+                }); 
+            },
+            test_done );
+    });
+
 });
