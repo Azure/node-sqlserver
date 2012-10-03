@@ -214,7 +214,7 @@ function invalidQueryTSQL(Connection, tsql, ExpectedError, testname, done) {
 }
 
 // compare fetched results from an ordered SELECT stmt against expected results. If comparison fails, 
-// increment 'test failed' counter without causing tests to hang via unhandled assert.
+// increment 'test failed' counter without causing tests to not respond via unhandled assert.
 function verifyData(Connection, TableName, ColumnName, ExpectedData, testname, done) {
     var tsql = "SELECT * FROM " + TableName + " ORDER BY id";
     debugComments("\ntest note verifyData_CommonTestFunctions.js ... executing: \n" + tsql);
@@ -245,7 +245,7 @@ function verifyData(Connection, TableName, ColumnName, ExpectedData, testname, d
 
 // datetime types specific data verification function...
 // compare fetched results from an ordered SELECT stmt against expected results. If comparison fails, 
-// increment 'test failed' counter without causing tests to hang via unhandled assert.
+// increment 'test failed' counter without causing tests to not respond via unhandled assert.
 function verifyData_Datetime(Connection, TableName, ColumnName, RowWithNullData, ExpectedData, testname, done) {
     var tsql = "SELECT col2 FROM " + TableName + " ORDER BY id";
     var row = 23;
