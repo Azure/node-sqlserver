@@ -436,33 +436,43 @@ suite('query', function () {
     test( 'test function parameter validation', function( test_done ) {
 
         // test the module level open, query and queryRaw functions
+        var thrown = false;
         try {
 
             sql.open( 1, "SELECT 1" );
         }
         catch( e  ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid connection string passed to function open. Type should be string.", "Improper error returned" );
         }
+        assert( thrown == true );
 
+        thrown = false;
         try {
 
             sql.query( function() { return 1; }, "SELECT 1" );
         }
         catch( e  ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid connection string passed to function query. Type should be string.", "Improper error returned" );
         }
+        assert( thrown = true );
 
+        thrown = false;
         try {
 
             sql.queryRaw( [ "This", "is", "a", "test" ], "SELECT 1" );
         }
         catch( e  ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid connection string passed to function queryRaw. Type should be string.", "Improper error returned" );
         }
+        assert( thrown == true );
 
+        thrown = false;
         // test the module level open, query and queryRaw functions
         try {
 
@@ -470,26 +480,34 @@ suite('query', function () {
         }
         catch( e  ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid callback passed to function open. Type should be function.", "Improper error returned" );
         }
+        assert( thrown = true );
 
+        thrown = false;
         try {
 
             sql.query( conn_str, function() { return 5; } );
         }
         catch( e  ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function query. Type should be string.", "Improper error returned" );
         }
+        assert( thrown == true );
 
+        thrown = false;
         try {
 
             sql.queryRaw( conn_str, [ "This", "is", "a", "test" ] );
         }
         catch( e  ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function queryRaw. Type should be string.", "Improper error returned" );
         }
+        assert( thrown == true );
 
         var stmt = sql.queryRaw( conn_str, "SELECT 1" );
         stmt.on( 'error', function( e ) { assert.ifError( e ); });
@@ -499,9 +517,23 @@ suite('query', function () {
             assert.ifError( e );
         });
 
+        sql.queryRaw( conn_str, "SELECT 1", [], function( e, r ) {
+
+            assert.ifError( e );
+        });
+
+        sql.queryRaw( conn_str, "SELECT 1", null, function( e, r ) {
+
+            assert.ifError( e );
+        });
+
         stmt = sql.queryRaw( conn_str, "SELECT 1", [] );
         stmt.on( 'error', function( e ) { assert.ifError( e ); });
 
+        stmt = sql.queryRaw( conn_str, "SELECT 1", null );
+        stmt.on( 'error', function( e ) { assert.ifError( e ); });
+
+        thrown = false
         try {
 
             sql.queryRaw( conn_str, "SELECT 1", 1 );
@@ -509,9 +541,12 @@ suite('query', function () {
         }
         catch( e ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
         }
+        assert( thrown == true );
 
+        thrown = false;
         try {
 
             sql.queryRaw( conn_str, "SELECT 1", { a: 1, b: "2" }, function( a ) {} );
@@ -519,42 +554,40 @@ suite('query', function () {
         }
         catch( e ) {
 
+            thrown = true;
             assert.equal( e.toString(), "Error: [node-sqlserver] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
         }
-
-        try {
-
-            sql.queryRaw( conn_str, "SELECT 1", null );
-
-        }
-        catch( e ) {
-
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
-            test_done();
-        }
+        assert( thrown == true );
 
         // validate member functions
         sql.open( conn_str, function( e, c ) {
 
             assert.ifError( e );
 
+            thrown = false;
             try{ 
 
                 c.query( 1 );
             }
             catch( e  ) {
 
+                thrown = true;
                 assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function query. Type should be string.", "Improper error returned" );
             }            
+            assert( thrown == true );
 
+            thrown = false;
             try{ 
 
                 c.queryRaw( function() { return 1; } );
             }
             catch( e  ) {
 
+                thrown = true;
                 assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function queryRaw. Type should be string.", "Improper error returned" );
-            }            
+                test_done();
+            }
+            assert( thrown == true );
         });
     });
 
