@@ -61,6 +61,10 @@ outstanding [issues][issues].
 
 For now, please see the unit tests for usage examples.
 
+## Contribute Code
+
+If you would like to become an active contributor to this project please follow the instructions provided in [the Contribution Guidelines][contribute].
+
 ## License
 
 The Microsoft Driver for Node.js for SQL Server is licensed under the Apache
@@ -73,6 +77,8 @@ The Microsoft Driver for Node.js for SQL Server is licensed under the Apache
 [project]: https://github.com/windowsazure/node-sqlserver
 
 [issues]: https://github.com/windowsazure/node-sqlserver/issues
+
+[contribute]: https://github.com/WindowsAzure/node-sqlserver/blob/master/CONTRIBUTING.md
 
 
 
