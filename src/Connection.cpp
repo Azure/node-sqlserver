@@ -34,7 +34,7 @@ namespace mssql
         if( !initialized ) {
             
             target->Set( String::NewSymbol("Connection"), Undefined() );
-            v8::ThrowException(v8::Exception::Error(v8::String::New("Unable to intialize node-sqlserver")));
+            v8::ThrowException(v8::Exception::Error(v8::String::New("Unable to initialize msnodesql")));
             return;
         }
 

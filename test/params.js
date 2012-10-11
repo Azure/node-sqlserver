@@ -459,7 +459,7 @@ suite( 'params', function() {
 
                         c.queryRaw( "INSERT INTO invalid_numbers_test (f) VALUES (?)", [ Number.POSITIVE_INFINITY ], function( e, r ) {
 
-                            assert( e == "Error: IMNOD: [node-sqlserver]Invalid number parameter" );
+                            assert( e == "Error: IMNOD: [msnodesql]Invalid number parameter" );
 
                             async_done();
                         });
@@ -469,7 +469,7 @@ suite( 'params', function() {
 
                         c.queryRaw( "INSERT INTO invalid_numbers_test (f) VALUES (?)", [ Number.NEGATIVE_INFINITY ], function( e, r ) {
 
-                            assert( e == "Error: IMNOD: [node-sqlserver]Invalid number parameter" );
+                            assert( e == "Error: IMNOD: [msnodesql]Invalid number parameter" );
 
                             async_done();
                             done();

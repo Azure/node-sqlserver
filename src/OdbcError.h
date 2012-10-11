@@ -47,7 +47,7 @@ namespace mssql
             return code;
         }
 
-        // list of node-sqlserver specific errors
+        // list of msnodesql specific errors
         static OdbcError NODE_SQL_NO_DATA;
 
     private:

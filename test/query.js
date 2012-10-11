@@ -444,7 +444,7 @@ suite('query', function () {
         catch( e  ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid connection string passed to function open. Type should be string.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid connection string passed to function open. Type should be string.", "Improper error returned" );
         }
         assert( thrown == true );
 
@@ -456,7 +456,7 @@ suite('query', function () {
         catch( e  ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid connection string passed to function query. Type should be string.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid connection string passed to function query. Type should be string.", "Improper error returned" );
         }
         assert( thrown = true );
 
@@ -468,7 +468,7 @@ suite('query', function () {
         catch( e  ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid connection string passed to function queryRaw. Type should be string.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid connection string passed to function queryRaw. Type should be string.", "Improper error returned" );
         }
         assert( thrown == true );
 
@@ -481,7 +481,7 @@ suite('query', function () {
         catch( e  ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid callback passed to function open. Type should be function.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid callback passed to function open. Type should be function.", "Improper error returned" );
         }
         assert( thrown = true );
 
@@ -493,7 +493,7 @@ suite('query', function () {
         catch( e  ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function query. Type should be string.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid query string passed to function query. Type should be string.", "Improper error returned" );
         }
         assert( thrown == true );
 
@@ -505,7 +505,7 @@ suite('query', function () {
         catch( e  ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function queryRaw. Type should be string.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid query string passed to function queryRaw. Type should be string.", "Improper error returned" );
         }
         assert( thrown == true );
 
@@ -542,7 +542,7 @@ suite('query', function () {
         catch( e ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
         }
         assert( thrown == true );
 
@@ -555,7 +555,7 @@ suite('query', function () {
         catch( e ) {
 
             thrown = true;
-            assert.equal( e.toString(), "Error: [node-sqlserver] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
+            assert.equal( e.toString(), "Error: [msnodesql] Invalid parameter(s) passed to function query or queryRaw.", "Improper error returned" );
         }
         assert( thrown == true );
 
@@ -572,7 +572,7 @@ suite('query', function () {
             catch( e  ) {
 
                 thrown = true;
-                assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function query. Type should be string.", "Improper error returned" );
+                assert.equal( e.toString(), "Error: [msnodesql] Invalid query string passed to function query. Type should be string.", "Improper error returned" );
             }            
             assert( thrown == true );
 
@@ -584,7 +584,7 @@ suite('query', function () {
             catch( e  ) {
 
                 thrown = true;
-                assert.equal( e.toString(), "Error: [node-sqlserver] Invalid query string passed to function queryRaw. Type should be string.", "Improper error returned" );
+                assert.equal( e.toString(), "Error: [msnodesql] Invalid query string passed to function queryRaw. Type should be string.", "Improper error returned" );
                 test_done();
             }
             assert( thrown == true );

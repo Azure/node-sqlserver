@@ -19,7 +19,7 @@
 
 #include "stdafx.h"
 
-// list of node-sqlserver specific errors
+// list of msnodesql specific errors
 namespace mssql {
 
 	// error returned when a string returns no data but it's not a NULL field

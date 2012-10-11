@@ -173,7 +173,7 @@ namespace mssql
 
                         int argc = 1;
                         Local<Value> args[1];
-                        args[0] = Exception::Error( String::New( "IMNOD: [node-sqlserver]Invalid number parameter" ) );
+                        args[0] = Exception::Error( String::New( "IMNOD: [msnodesql]Invalid number parameter" ) );
 
                         // this is okay because we're still on the node.js thread, not on the background thread
                         callback->Call(Undefined().As<Object>(), argc, args);
@@ -235,7 +235,7 @@ namespace mssql
                     Local<Value> args[2];
                     args[0] = Local<Value>::New(Boolean::New(true));
                     // TODO: Change this to return an object with 3 keys, message, sqlstate and code from the OdbcError
-                    args[1] = Exception::Error( String::New( "IMNOD: [node-sqlserver]Invalid parameter type" ) );
+                    args[1] = Exception::Error( String::New( "IMNOD: [msnodesql]Invalid parameter type" ) );
 
                     // this is okay because we're still on the node.js thread, not on the background thread
                     callback->Call(Undefined().As<Object>(), argc, args);
