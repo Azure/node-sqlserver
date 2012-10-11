@@ -46,7 +46,7 @@
 // There is no default JS date when only a time is furnished, so we are using the SQL Server
 // defaults, which is Jan 1, 1900.
 const int SQL_SERVER_DEFAULT_YEAR  = 1900;
-const int SQL_SERVER_DEFAULT_MONTH = 0;		// JS months are 0 based
+const int SQL_SERVER_DEFAULT_MONTH = 1;		// JS months are 0 based, SQL Server months are 1 based
 const int SQL_SERVER_DEFAULT_DAY   = 1;
 
 #define ErrorIf(x) if (x) goto Error;
