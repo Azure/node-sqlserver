@@ -2,7 +2,7 @@
 // File: ResultSet.h
 // Contents: ResultSet object that holds metadata and current column to return to Javascript
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ namespace mssql
 
     class ResultSet
     {
+
     public:
+
         struct ColumnDefinition
         {
             wstring name;
@@ -38,14 +40,18 @@ namespace mssql
         };
 
         ResultSet(int columns) 
-            : moreRows(false)
+            : rowcount(0),
+              endOfRows(true)
         {
             metadata.resize(columns);
+            column.reset();
         }
+  
         ColumnDefinition& GetMetadata(int column)
         {
             return metadata[column];
         }
+
         int GetColumns() const
         {
             return metadata.size();
@@ -57,16 +63,29 @@ namespace mssql
         {
             this->column = column;
         }
+
         shared_ptr<Column> GetColumn()
         {
             return column;
         }
 
-    //private:
+        SQLLEN RowCount() const
+        {
+            return rowcount;
+        }
+
+        bool EndOfRows() const
+        {
+            return endOfRows;
+        }
+
+    private:
+
         vector<ColumnDefinition> metadata;
         SQLLEN rowcount;
-        bool moreRows;
-    private:
+        bool endOfRows;
         shared_ptr<Column> column;
+
+        friend class OdbcConnection;    // allow access to the endOfRows flag to just the ResultSet creating class
     };
 }

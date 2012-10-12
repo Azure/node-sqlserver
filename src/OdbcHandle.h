@@ -2,7 +2,7 @@
 // File: OdbcHandle.h
 // Contents: Object to manage ODBC handles
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,71 +23,100 @@ namespace mssql
 {
     using namespace std;
 
-    template<SQLSMALLINT Type>
+    template<SQLSMALLINT HandleType>
     class OdbcHandle
     {
     public:
-        OdbcHandle() : handle(nullptr) {}
-        OdbcHandle(OdbcHandle&& orig) : handle(orig.handle) 
-        { 
-            orig.handle = nullptr; 
+
+        OdbcHandle( void ) : handle(SQL_NULL_HANDLE)
+        {
         }
+
+        OdbcHandle(OdbcHandle&& orig) : handle(orig.handle)
+        { 
+            orig.handle = SQL_NULL_HANDLE;
+        }
+
         ~OdbcHandle()
         {
             Free();
         }
+
         OdbcHandle& operator=(OdbcHandle&& orig)
         {
             handle = orig.handle;
-            orig.handle = nullptr;
+
+            orig.handle = SQL_NULL_HANDLE;
+
             return *this;
         }
 
-        OdbcHandle& Alloc()
+        bool Alloc()
         {
-            assert(handle == NULL);
-            SQLRETURN ret = SQLAllocHandle(Type, nullptr, &handle);
+            assert(handle == SQL_NULL_HANDLE);
+            SQLRETURN ret = SQLAllocHandle( HandleType, nullptr, &handle );
             if (!SQL_SUCCEEDED(ret))
             {
-                throw OdbcException(L"Unable to allocate ODBC handle");
+                return false;
             }
-            return *this;
+            return true;
         }
 
         template<SQLSMALLINT ParentType>
-        OdbcHandle& Alloc(const OdbcHandle<ParentType>& parent)
+        bool Alloc(const OdbcHandle<ParentType>& parent)
         {
-            assert(handle == NULL);
-            SQLRETURN ret = SQLAllocHandle(Type, parent, &handle);
+            assert(handle == SQL_NULL_HANDLE);
+            SQLRETURN ret = SQLAllocHandle( HandleType, parent, &handle );
             if (!SQL_SUCCEEDED(ret))
             {
-                throw OdbcException(L"Unable to allocate ODBC handle");
+                return false;
             }
-            return *this;
+            return true;
         }
 
         void Free()
         {
-            if (handle != nullptr)
+            if (handle != SQL_NULL_HANDLE)
             {
-                SQLFreeHandle(Type, handle);
-                handle = nullptr;
+                SQLFreeHandle( HandleType, handle );
+                handle = SQL_NULL_HANDLE;
             }
         }
 
-        void Throw()
+        operator SQLHANDLE() const { return handle; }
+
+        operator bool() const { return handle != SQL_NULL_HANDLE; }
+
+        shared_ptr<OdbcError> LastError( void )
         {
-            throw OdbcException::Create(Type, handle);
+            vector<wchar_t> buffer;
+
+            SQLWCHAR wszSqlState[6];
+            SQLINTEGER nativeError;
+            SQLSMALLINT actual;
+
+            SQLRETURN ret = SQLGetDiagRec(HandleType, handle, 1, wszSqlState, &nativeError, NULL, 0, &actual);
+            assert( ret != SQL_INVALID_HANDLE );
+            assert( ret != SQL_NO_DATA );
+            assert( SQL_SUCCEEDED( ret ));
+
+            buffer.resize(actual+1);
+            ret = SQLGetDiagRec(HandleType, handle, 1, wszSqlState, &nativeError, &buffer[0], actual + 1, &actual);
+            assert( SQL_SUCCEEDED( ret ));
+
+            string sqlstate = w2a(wszSqlState);
+            string message = w2a(buffer.data());
+            return make_shared<OdbcError>( sqlstate.c_str(), message.c_str(), nativeError );
         }
 
-        operator SQLHENV() const { return handle; }
     private:
+
         void operator=(const OdbcHandle& orig) 
         {
             assert(false);
         }
 
-        SQLHENV handle;
+        SQLHANDLE handle;
     };
 
     typedef OdbcHandle<SQL_HANDLE_ENV> OdbcEnvironmentHandle;

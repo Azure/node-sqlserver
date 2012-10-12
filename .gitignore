@@ -8,3 +8,5 @@ ipch
 .*.swp
 *.opensdf
 *.suo
+
+.DS_Store

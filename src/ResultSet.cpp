@@ -2,7 +2,7 @@
 // File: ResultSet.cpp
 // Contents: ResultSet object that holds metadata and current column to return to Javascript
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,10 +41,14 @@ namespace mssql
             case SQL_WCHAR:
             case SQL_WVARCHAR:
             case SQL_WLONGVARCHAR:
+            case SQL_GUID:
+            case SQL_SS_XML:
                 typeName = L"text";
                 break;
-            case SQL_SMALLINT:
             case SQL_BIT:
+                typeName = L"boolean";
+                break;
+            case SQL_SMALLINT:
             case SQL_TINYINT:
             case SQL_INTEGER:
             case SQL_DECIMAL:
@@ -55,15 +59,20 @@ namespace mssql
             case SQL_BIGINT:
                 typeName = L"number";
                 break;
+            case SQL_TYPE_TIME:
+            case SQL_SS_TIME2:
+            case SQL_TYPE_TIMESTAMP:
+            case SQL_TYPE_DATE:
+            case SQL_SS_TIMESTAMPOFFSET:
+                typeName = L"date";
+                break;
             case SQL_BINARY:
             case SQL_VARBINARY:
             case SQL_LONGVARBINARY:
-            case SQL_GUID:
-            case SQL_TYPE_TIME:
-            case SQL_TYPE_TIMESTAMP:
-            case SQL_TYPE_DATE:
-            default:
                 typeName = L"binary";
+                break;
+            default:
+                typeName = L"text";
                 break;
             }
 

@@ -2,7 +2,7 @@
 // File: OdbcConnectionBridge.h
 // Contents: Create (bridge) operations to be completed on background thread queue
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ namespace mssql
     class OdbcConnectionBridge
     {
     public:
+
         OdbcConnectionBridge()
         {
             connection = make_shared<OdbcConnection>();
@@ -44,6 +45,12 @@ namespace mssql
             Operation::Add(operation);
 
             return scope.Close(Undefined());
+        }
+
+        void Collect( void )
+        {
+            Operation* operation = new CollectOperation(connection);
+            Operation::Add( operation );
         }
 
         Handle<Value> BeginTransaction(Handle<Object> callback )
@@ -76,12 +83,18 @@ namespace mssql
             return scope.Close(Undefined());
         }
 
-        Handle<Value> Query(Handle<String> query, Handle<Object> callback)
+        Handle<Value> Query(Handle<String> query, Handle<Array> params, Handle<Object> callback)
         {
             HandleScope scope;
 
-            Operation* operation = new QueryOperation(connection, FromV8String(query), callback);
-            Operation::Add(operation);
+            QueryOperation* operation = new QueryOperation(connection, FromV8String(query), callback);
+
+            bool bound = operation->BindParameters( params );
+
+            if( bound ) {
+
+                Operation::Add(operation);
+            }
 
             return scope.Close(Undefined());
         }
@@ -96,6 +109,16 @@ namespace mssql
             return scope.Close(Undefined());
         }
         
+        Handle<Integer> ReadRowCount( void )
+        {
+            HandleScope scope;
+
+            assert( connection );
+            assert( connection->resultset );
+
+            return scope.Close( Integer::New( connection->resultset->RowCount() ));
+        }
+
         Handle<Value> ReadNextResult(Handle<Object> callback)
         {
             HandleScope scope;
@@ -125,10 +148,9 @@ namespace mssql
 
             return scope.Close(Undefined());
         }
+
     private:
 
         shared_ptr<OdbcConnection> connection;
     };
-
 }
-

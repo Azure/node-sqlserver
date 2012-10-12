@@ -2,7 +2,7 @@
 // File: OdbcOperation.h
 // Contents: ODBC Operation objects called on background thread
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,31 +20,44 @@
 #pragma once
 
 #include "Operation.h"
-#include "OdbcConnection.h"
+
+#include <list>
 
 namespace mssql
 {
     using namespace std;
     using namespace v8;
 
+    class OdbcConnection;
+
     class OdbcOperation : public Operation
     {
+
     protected:
+
         shared_ptr<OdbcConnection> connection;
-    private:
         Persistent<Function> callback;
+
+    private:
+
         bool failed;
-        bool completed;
-        exception failure;
+        shared_ptr<OdbcError> failure;
+
     public:
+
         OdbcOperation(shared_ptr<OdbcConnection> connection, Handle<Object> callback)
             : connection(connection), 
               callback(Persistent<Function>::New(callback.As<Function>())),
               failed(false),
-              completed(false)
+              failure(nullptr)
         {
         }
 
+        virtual ~OdbcOperation()
+        {
+            callback.Dispose();
+        }
+ 
         virtual bool TryInvokeOdbc() = 0;
         virtual Handle<Value> CreateCompletionArg() = 0;
 
@@ -57,94 +70,122 @@ namespace mssql
     private:
         wstring connectionString;
         Persistent<Object> backpointer;
+
     public:
-        OpenOperation(shared_ptr<OdbcConnection> connection, const wstring& connectionString, Handle<Object> callback, Handle<Object> backpointer)
+        OpenOperation(shared_ptr<OdbcConnection> connection, const wstring& connectionString, Handle<Object> callback, 
+                      Handle<Object> backpointer)
             : OdbcOperation(connection, callback), 
               connectionString(connectionString), 
               backpointer(Persistent<Object>::New(backpointer))
         {
         }
 
-        bool TryInvokeOdbc() override
+        virtual ~OpenOperation( void )
         {
-            return connection->TryOpen(connectionString);
+            backpointer.Dispose();
         }
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close(backpointer);
-        }
+        bool TryInvokeOdbc() override;
 
+        Handle<Value> CreateCompletionArg() override;
     };
     
     class QueryOperation : public OdbcOperation
     {
-    private:
-        wstring query;
     public:
-        QueryOperation(shared_ptr<OdbcConnection> connection, const wstring& query, Handle<Object> callback)
-            : OdbcOperation(connection, callback), 
-              query(query)
-        {
-        }
 
-        bool TryInvokeOdbc() override
-        {
-            return connection->TryExecute(query);
-        }
+        struct ParamBinding {
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close(connection->GetMetaValue());
-        }
+            SQLSMALLINT c_type;
+            SQLSMALLINT sql_type;
+            SQLULEN param_size;
+            SQLSMALLINT digits;
+            SQLPOINTER buffer;
+            SQLLEN buffer_len;
+            SQLLEN indptr;
 
+            ParamBinding( void ) :
+                buffer( NULL ),
+                buffer_len( 0 ),
+                digits( 0 ),
+                indptr( SQL_NULL_DATA )
+            {
+            }
+
+            ~ParamBinding()
+            {
+                if( c_type == SQL_C_WCHAR )  {
+                    delete [] buffer;
+                }
+                else {
+                    delete buffer;
+                }
+            }
+
+            ParamBinding( ParamBinding&& other )
+            {
+                c_type = other.c_type;
+                sql_type = other.sql_type;
+                param_size = other.param_size;
+                digits = other.digits;
+                buffer = other.buffer;
+                buffer_len = other.buffer_len;
+                indptr = other.indptr;
+
+                other.buffer = NULL;
+                other.buffer_len = 0;
+            }
+
+        };
+
+        typedef std::list<ParamBinding> param_bindings; // list because we only insert and traverse in-order
+
+        QueryOperation(shared_ptr<OdbcConnection> connection, const wstring& query, Handle<Object> callback);
+
+        bool BindParameters( Handle<Array> node_params );                      
+
+        bool TryInvokeOdbc() override;
+
+        Handle<Value> CreateCompletionArg() override;
+
+    private:
+
+        wstring query;
+
+        param_bindings params;
     };
     
     class ReadRowOperation : public OdbcOperation
     {
     public:
+
         ReadRowOperation(shared_ptr<OdbcConnection> connection, Handle<Object> callback)
             : OdbcOperation(connection, callback)
         {
         }
 
-        bool TryInvokeOdbc() override
-        {
-            return connection->TryReadRow();
-        }
+        bool TryInvokeOdbc() override;
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close(connection->MoreRows());
-        }
-
+        Handle<Value> CreateCompletionArg() override;
     };
     
     class ReadColumnOperation : public OdbcOperation
     {
     private:
+
         int column;
+
     public:
+
         ReadColumnOperation(shared_ptr<OdbcConnection> connection, int column, Handle<Object> callback)
             : OdbcOperation(connection, callback),
               column(column)
         {
         }
 
-        bool TryInvokeOdbc() override
-        {
-            return connection->TryReadColumn(column);
-        }
+        bool TryInvokeOdbc() override;
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close(connection->GetColumnValue());
-        }
-
+        Handle<Value> CreateCompletionArg() override;
     };
     
     class ReadNextResultOperation : public OdbcOperation
@@ -155,17 +196,9 @@ namespace mssql
         {
         }
 
-        bool TryInvokeOdbc() override
-        {
-            return connection->TryReadNextResult();
-        }
+        bool TryInvokeOdbc() override;
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close(connection->MoreRows());
-        }
-
+        Handle<Value> CreateCompletionArg() override;
     };
 
     class CloseOperation : public OdbcOperation
@@ -176,17 +209,25 @@ namespace mssql
         {
         }
 
-        bool TryInvokeOdbc() override
+        bool TryInvokeOdbc() override;
+
+        Handle<Value> CreateCompletionArg() override;
+    };
+
+    class CollectOperation : public OdbcOperation
+    {
+    public:
+        CollectOperation(shared_ptr<OdbcConnection> connection)
+            : OdbcOperation(connection, Handle<Object>())
         {
-            return connection->TryClose();
         }
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close( Undefined() );
-        }
+        bool TryInvokeOdbc() override;
 
+        Handle<Value> CreateCompletionArg() override;
+
+        // override to not call a callback
+        void CompleteForeground() override;
     };
 
     class BeginTranOperation : public OdbcOperation
@@ -197,16 +238,9 @@ namespace mssql
         {
         }
 
-        bool TryInvokeOdbc() override
-        {
-            return connection->TryBeginTran();
-        }
+        bool TryInvokeOdbc() override;
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close( Undefined() );
-        }
+        Handle<Value> CreateCompletionArg() override;
     };
 
     class EndTranOperation : public OdbcOperation
@@ -222,17 +256,9 @@ namespace mssql
         {
         }
 
-        bool TryInvokeOdbc() override
-        {
-            return connection->TryEndTran(completionType);
-        }
+        bool TryInvokeOdbc() override;
 
-        Handle<Value> CreateCompletionArg() override
-        {
-            HandleScope scope;
-            return scope.Close( Undefined() );
-        }
-
+        Handle<Value> CreateCompletionArg() override;
     };
 }
 

@@ -2,7 +2,7 @@
 // File: Operation.h
 // Contents: Queue calls to ODBC on background thread
 // 
-// Copyright Microsoft Corporation
+// Copyright Microsoft Corporation and contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,22 +26,32 @@ using namespace std;
 class Operation
 {
 public:
-    virtual void InvokeBackground() = 0;
-    virtual void CompleteForeground() = 0;
+
     virtual ~Operation() {};
 
-    static void Add(Operation* operation)
+    virtual void InvokeBackground() = 0;
+    virtual void CompleteForeground() = 0;
+
+    static bool Add(Operation* operation)
     {
         operation->work.data = operation;
         int result = uv_queue_work(uv_default_loop(), &operation->work, OnBackground, OnForeground);
-        if (result != 0)
+        if( result != 0 )
         {
-            uv_err_t error = uv_last_error(uv_default_loop());
-            throw OdbcException(uv_strerror(error));
+            operation->last_error = uv_last_error( uv_default_loop() ) ;
+            return false;
+        }
+        else
+         {
+            operation->last_error.code = UV_OK;
+            return true;
         }
     }
+
 private:
-    uv_work_t work;
+
+    uv_work_t  work;
+    uv_err_t   last_error;
 
     static void OnBackground(uv_work_t* work)
     {

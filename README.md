@@ -57,13 +57,13 @@ We are aware that many features are still not implemented, and are working to
 update these. Please visit the [project on Github][project] to view 
 outstanding [issues][issues].
 
-## Contribute Code
-
-If you would like to become an active contributor to this project please follow the instructions provided in [Windows Azure Projects Contribution Guidelines][wacontribute].
-
 ## Usage
 
 For now, please see the unit tests for usage examples.
+
+## Contribute Code
+
+If you would like to become an active contributor to this project please follow the instructions provided in [the Contribution Guidelines][contribute].
 
 ## License
 
@@ -78,7 +78,7 @@ The Microsoft Driver for Node.js for SQL Server is licensed under the Apache
 
 [issues]: https://github.com/windowsazure/node-sqlserver/issues
 
-[wacontribute]: http://windowsazure.github.com/guidelines.html
+[contribute]: https://github.com/WindowsAzure/node-sqlserver/blob/master/CONTRIBUTING.md
 
 
 
