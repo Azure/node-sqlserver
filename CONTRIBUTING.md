@@ -70,4 +70,4 @@ In order to speed up the process of accepting your contributions, you should try
 [Issues]: https://github.com/WindowsAzure/node-sqlserver/issues
 [Project]: https://github.com/WindowsAzure/node-sqlserver/
 [Download]: http://www.microsoft.com/en-us/download/details.aspx?id=29995
-[CLA]: http://windowsazure.github.com/docs/Contribution License Agreement.pdf
+[CLA]: http://windowsazure.github.com/docs/Contribution%20License%20Agreement.pdf
