@@ -68,7 +68,13 @@ namespace mssql
                 argc = 2;
             }
 
-            callback->Call(Undefined().As<Object>(), argc, args);
+			//DMGambone: Implementing the fix that clintwood documented
+			//for issue #62 - Debugging query callback with node-inspector!
+			//The original line:
+			//  callback->Call(Undefined().As<Object>(), argc, args);
+			//causes node-inspector to crash if breakpoints are added in any
+			//query callback function
+			callback->Call(Context::GetCurrent()->Global(), argc, args);
         }
     }
 
