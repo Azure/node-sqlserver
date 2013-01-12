@@ -34,6 +34,7 @@
 #include <functional>
 #include <algorithm>
 #include <numeric>
+#include <memory>
 
 #include "Utility.h"
 #include "OdbcError.h"
