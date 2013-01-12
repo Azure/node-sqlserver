@@ -113,9 +113,9 @@ int64_t TimestampColumn::YearFromDay( int64_t& day )
             }
         }
 
-        if( day <= 0 ) {
+        if( day < 0 ) {
             --year;
-            day += days_in_year - 1;
+            day += days_in_year;
         }
 	}
 
@@ -126,7 +126,7 @@ int64_t TimestampColumn::YearFromDay( int64_t& day )
 // since Jan 1, 1970.  Dates before 1970 are represented as negative numbers.
 void TimestampColumn::DateFromMilliseconds( SQL_SS_TIMESTAMPOFFSET_STRUCT& date )
 {
-    static const int64_t days_in_months[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    static const int64_t days_in_months[] =      { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
     static const int64_t leap_days_in_months[] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
     int64_t const* start_days = days_in_months;
@@ -141,6 +141,13 @@ void TimestampColumn::DateFromMilliseconds( SQL_SS_TIMESTAMPOFFSET_STRUCT& date 
         start_days = leap_days_in_months;
     }
     
+    // calculate time portion of the timestamp
+    int64_t time = static_cast<int64_t>( milliseconds ) % MS_PER_DAY;
+    if( time < 0 ) {
+        time = MS_PER_DAY + time;
+        --day;
+    }
+
     int64_t month = 0;
     while( day >= start_days[ month ] ) {
         day -= start_days[ month ];
@@ -153,11 +160,6 @@ void TimestampColumn::DateFromMilliseconds( SQL_SS_TIMESTAMPOFFSET_STRUCT& date 
     date.month = static_cast<SQLUSMALLINT>( month + 1 );
     date.day = static_cast<SQLUSMALLINT>( day + 1 );
 
-    // calculate time portion of the timestamp
-    int64_t time = static_cast<int64_t>( milliseconds ) % MS_PER_DAY;
-    if( time < 0 ) {
-        time = MS_PER_DAY + time;
-    }
     // SQL Server has 100 nanosecond resolution, so we adjust the milliseconds to high bits
     date.hour = time / MS_PER_HOUR;
     date.minute = (time % MS_PER_HOUR) / MS_PER_MINUTE;

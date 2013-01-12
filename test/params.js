@@ -588,4 +588,97 @@ suite( 'params', function() {
             test_done );
     });
 
+  // verify fix for a bug that would return the wrong day when a datetimeoffset was inserted where the date
+  // was before 1/1/1970 and the time was midnight.
+  test( 'verify bug fix for dates older than 1/1/1970 with midnight time', function( test_done ) {
+    sql.open( conn_str, function( err, conn ) {
+
+        assert.ifError( err );
+
+        var midnightDate = new Date( Date.parse( "2030-08-13T00:00:00.000Z" ));
+
+        testBoilerPlate( 'midnight_date_test', { 'midnight_date_test': 'datetimeoffset(3)' },
+
+            function (done) {
+
+                var insertQuery = "INSERT INTO midnight_date_test (midnight_date_test) VALUES (?);";
+                conn.queryRaw( insertQuery, [ midnightDate ], function( e ) {
+
+                    assert.ifError( e );
+                    done();
+                });
+            },
+            // test valid dates
+            function( done ) {
+
+                conn.queryRaw( "SELECT midnight_date_test FROM midnight_date_test", function( e, r ) {
+
+                    assert.ifError( e );
+
+                    var expectedDates = [];
+                    var expectedDate = midnightDate
+                    expectedDates.push( [ expectedDate ]);
+                    var expectedResults = { meta: [ { name: 'midnight_date_test', size: 30, nullable: true, type: 'date' } ],
+                        rows: expectedDates 
+                    };
+                    assert.deepEqual( expectedResults.meta, r.meta );
+                    assert( r.rows.length == 1 );
+                    for( var row in r.rows ) {
+                        for( var d in row ) {
+                            assert.deepEqual( expectedResults.rows[row][d], r.rows[row][d] );
+                        }
+                    }
+                    done();
+                })
+            },
+            test_done );
+      });
+  });
+
+  // verify fix for a bug that would return the wrong day when a datetimeoffset was inserted where the date
+  // was before 1/1/1970 and the time was midnight.
+  test( 'verify bug fix for dates older than 1/1/1970 with midnight time', function( test_done ) {
+    sql.open( conn_str, function( err, conn ) {
+
+        assert.ifError( err );
+
+        var midnightDate = new Date( Date.parse( "1930-08-13T00:00:00.000Z" ));
+
+        testBoilerPlate( 'midnight_date_test', { 'midnight_date_test': 'datetimeoffset(3)' },
+
+            function (done) {
+
+                var insertQuery = "INSERT INTO midnight_date_test (midnight_date_test) VALUES (?);";
+                conn.queryRaw( insertQuery, [ midnightDate ], function( e ) {
+
+                    assert.ifError( e );
+                    done();
+                });
+            },
+            // test valid dates
+            function( done ) {
+
+                conn.queryRaw( "SELECT midnight_date_test FROM midnight_date_test", function( e, r ) {
+
+                    assert.ifError( e );
+
+                    var expectedDates = [];
+                    var expectedDate = midnightDate
+                    expectedDates.push( [ expectedDate ]);
+                    var expectedResults = { meta: [ { name: 'midnight_date_test', size: 30, nullable: true, type: 'date' } ],
+                        rows: expectedDates 
+                    };
+                    assert.deepEqual( expectedResults.meta, r.meta );
+                    assert( r.rows.length == 1 );
+                    for( var row in r.rows ) {
+                        for( var d in row ) {
+                            assert.deepEqual( expectedResults.rows[row][d], r.rows[row][d] );
+                        }
+                    }
+                    done();
+                })
+            },
+            test_done );
+      });
+  });
 });
