@@ -635,21 +635,19 @@ suite( 'params', function() {
       });
   });
 
-  // verify fix for a bug that would return the wrong day when a datetimeoffset was inserted where the date
-  // was before 1/1/1970 and the time was midnight.
-  test( 'verify bug fix for dates older than 1/1/1970 with midnight time', function( test_done ) {
+  test( 'verify bug fix for last day of the year error', function( test_done ) {
     sql.open( conn_str, function( err, conn ) {
 
         assert.ifError( err );
 
-        var midnightDate = new Date( Date.parse( "1930-08-13T00:00:00.000Z" ));
+        var eoyDate = new Date( Date.parse( "1960-12-31T11:12:13.000Z" ));
 
-        testBoilerPlate( 'midnight_date_test', { 'midnight_date_test': 'datetimeoffset(3)' },
+        testBoilerPlate( 'eoy_date_test', { 'eoy_date_test': 'datetimeoffset(3)' },
 
             function (done) {
 
-                var insertQuery = "INSERT INTO midnight_date_test (midnight_date_test) VALUES (?);";
-                conn.queryRaw( insertQuery, [ midnightDate ], function( e ) {
+                var insertQuery = "INSERT INTO eoy_date_test (eoy_date_test) VALUES (?);";
+                conn.queryRaw( insertQuery, [ eoyDate ], function( e ) {
 
                     assert.ifError( e );
                     done();
@@ -658,14 +656,14 @@ suite( 'params', function() {
             // test valid dates
             function( done ) {
 
-                conn.queryRaw( "SELECT midnight_date_test FROM midnight_date_test", function( e, r ) {
+                conn.queryRaw( "SELECT eoy_date_test FROM eoy_date_test", function( e, r ) {
 
                     assert.ifError( e );
 
                     var expectedDates = [];
-                    var expectedDate = midnightDate
+                    var expectedDate = eoyDate;
                     expectedDates.push( [ expectedDate ]);
-                    var expectedResults = { meta: [ { name: 'midnight_date_test', size: 30, nullable: true, type: 'date' } ],
+                    var expectedResults = { meta: [ { name: 'eoy_date_test', size: 30, nullable: true, type: 'date' } ],
                         rows: expectedDates 
                     };
                     assert.deepEqual( expectedResults.meta, r.meta );

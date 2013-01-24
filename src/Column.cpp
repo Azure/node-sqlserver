@@ -133,6 +133,12 @@ void TimestampColumn::DateFromMilliseconds( SQL_SS_TIMESTAMPOFFSET_STRUCT& date 
 
     // calculate the number of days elapsed (normalized from the beginning of supported datetime)
     int64_t day = static_cast<int64_t>( milliseconds ) / MS_PER_DAY;
+    // calculate time portion of the timestamp
+    int64_t time = static_cast<int64_t>( milliseconds ) % MS_PER_DAY;
+    if( time < 0 ) {
+        time = MS_PER_DAY + time;
+        --day;
+    }
 
     // how many leap years have passed since that time?
     int64_t year = YearFromDay( day );
@@ -141,12 +147,6 @@ void TimestampColumn::DateFromMilliseconds( SQL_SS_TIMESTAMPOFFSET_STRUCT& date 
         start_days = leap_days_in_months;
     }
     
-    // calculate time portion of the timestamp
-    int64_t time = static_cast<int64_t>( milliseconds ) % MS_PER_DAY;
-    if( time < 0 ) {
-        time = MS_PER_DAY + time;
-        --day;
-    }
 
     int64_t month = 0;
     while( day >= start_days[ month ] ) {
