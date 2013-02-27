@@ -68,7 +68,6 @@ void TimestampColumn::MillisecondsFromDate( SQL_SS_TIMESTAMPOFFSET_STRUCT const&
     ms *= MS_PER_DAY;
 
     // add in the hour, day minute, second and millisecond
-    // TODO: How to handle the loss of precision from the datetimeoffset fields?
     ms += timeStruct.hour * MS_PER_HOUR + timeStruct.minute * MS_PER_MINUTE + timeStruct.second * MS_PER_SECOND;
     ms += timeStruct.fraction / NANOSECONDS_PER_MS;    // fraction is in nanoseconds
 

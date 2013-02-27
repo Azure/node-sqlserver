@@ -96,6 +96,20 @@ namespace mssql
 
         struct ParamBinding {
 
+            enum JS_TYPE {
+
+                JS_UNKNOWN,
+                JS_NULL,
+                JS_STRING,
+                JS_BOOLEAN,
+                JS_INT,
+                JS_UINT,
+                JS_NUMBER,
+                JS_DATE,
+                JS_BUFFER
+            };
+
+            JS_TYPE js_type;
             SQLSMALLINT c_type;
             SQLSMALLINT sql_type;
             SQLULEN param_size;
@@ -105,6 +119,8 @@ namespace mssql
             SQLLEN indptr;
 
             ParamBinding( void ) :
+                js_type( JS_UNKNOWN ),
+
                 buffer( NULL ),
                 buffer_len( 0 ),
                 digits( 0 ),
@@ -114,16 +130,34 @@ namespace mssql
 
             ~ParamBinding()
             {
-                if( c_type == SQL_C_WCHAR )  {
-                    delete [] buffer;
-                }
-                else {
-                    delete buffer;
+                switch( js_type ) {
+                    // delete string array
+                    case JS_STRING:
+                        delete [] buffer;
+                        break;
+                    case JS_UNKNOWN:
+                    // we do nothing for buffers because it's a node.js Buffer object
+                    // which will be collected by v8
+                    case JS_BUFFER:
+                        break;
+                    // all other types just need scalar delete
+                    case JS_NULL:
+                    case JS_BOOLEAN:
+                    case JS_INT:
+                    case JS_UINT:
+                    case JS_NUMBER:
+                    case JS_DATE:
+                        delete buffer;
+                        break;
+                    default:
+                        assert( false );
+                        break;
                 }
             }
 
             ParamBinding( ParamBinding&& other )
             {
+                js_type = other.js_type;
                 c_type = other.c_type;
                 sql_type = other.sql_type;
                 param_size = other.param_size;
@@ -144,6 +178,9 @@ namespace mssql
 
         bool BindParameters( Handle<Array> node_params );                      
 
+        // called by BindParameters when an error occurs.  It passes a node.js error to the user's callback.
+        bool ParameterErrorToUserCallback( uint32_t param, const char* error );
+
         bool TryInvokeOdbc() override;
 
         Handle<Value> CreateCompletionArg() override;
@@ -151,7 +188,6 @@ namespace mssql
     private:
 
         wstring query;
-
         param_bindings params;
     };
     

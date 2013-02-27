@@ -459,7 +459,7 @@ suite( 'params', function() {
 
                         c.queryRaw( "INSERT INTO invalid_numbers_test (f) VALUES (?)", [ Number.POSITIVE_INFINITY ], function( e, r ) {
 
-                            assert( e == "Error: IMNOD: [msnodesql]Invalid number parameter" );
+                            assert( e == "Error: IMNOD: [msnodesql] Parameter 1: Invalid number parameter" );
 
                             async_done();
                         });
@@ -469,7 +469,7 @@ suite( 'params', function() {
 
                         c.queryRaw( "INSERT INTO invalid_numbers_test (f) VALUES (?)", [ Number.NEGATIVE_INFINITY ], function( e, r ) {
 
-                            assert( e == "Error: IMNOD: [msnodesql]Invalid number parameter" );
+                            assert( e == "Error: IMNOD: [msnodesql] Parameter 1: Invalid number parameter" );
 
                             async_done();
                             done();
@@ -678,5 +678,79 @@ suite( 'params', function() {
             },
             test_done );
       });
+  });
+
+  test( 'verify Buffer objects as input parameters', function( test_done ) {
+
+    sql.open( conn_str, function( err, conn ) {
+        
+        assert.ifError( err );
+        var b = new Buffer( '0102030405060708090a', 'hex' );
+
+        testBoilerPlate( 'buffer_param_test', { 'buffer_param' : 'varbinary(100)' },
+
+            function( done ) {
+                conn.queryRaw( "INSERT INTO buffer_param_test (buffer_param) VALUES (?)", [ b ], function( e, r ) {
+                    assert.ifError( e );
+                    done();
+                });
+            },
+            function( done ) {
+                conn.queryRaw( "SELECT buffer_param FROM buffer_param_test WHERE buffer_param = ?", [ b ], function( e, r ) {
+                    assert.ifError( e );
+                    assert( r.rows.length = 1 );
+                    assert.deepEqual( r.rows[0][0], b );
+                    done();
+                });
+            },
+            test_done );
+    });
+  });
+
+  test( 'verify buffer longer than column causes error', function( test_done ) {
+
+    sql.open( conn_str, function( err, conn ) {
+
+        assert.ifError( err );
+        var b = new Buffer( '0102030405060708090a', 'hex' );
+
+        testBoilerPlate( 'buffer_param_test', { 'buffer_param' : 'varbinary(5)' },
+
+            function( done ) {
+                conn.queryRaw( "INSERT INTO buffer_param_test (buffer_param) VALUES (?)", [ b ], function( e, r ) {
+                    var expectedError = new Error('[Microsoft][SQL Server Native Client 11.0][SQL Server]String or binary data would be truncated.');
+                    expectedError.sqlstate = "22001";
+                    expectedError.code = 8152;
+                    assert.deepEqual( e, expectedError );
+                    done();
+                });
+            },
+            function( done ) {
+                done();
+            },
+            test_done );
+    });
+  });
+
+  test( 'verify that non-Buffer object parameter returns an error', function( test_done ) {
+
+    sql.open( conn_str, function( err, conn ) {
+
+        assert.ifError( err );
+        var o = { field1: 'value1', field2: -1 };
+
+        testBoilerPlate( 'non_buffer_object', { 'object_col': 'varbinary(100)'},
+            
+            function( done ) {
+                conn.queryRaw( "INSERT INTO non_buffer_object (object_col) VALUES (?)", [ o ], function( e, r ) {
+                    assert( e == "Error: IMNOD: [msnodesql] Parameter 1: Invalid parameter type" );
+                    done();
+                });
+            },
+            function( done ) {
+                done();
+            },
+            test_done );
+    });
   });
 });

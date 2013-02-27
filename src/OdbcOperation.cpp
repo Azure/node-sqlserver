@@ -20,9 +20,13 @@
 #include "stdafx.h"
 #include "OdbcOperation.h"
 #include "OdbcConnection.h"
+#include "node_buffer.h"
+
 
 #include <limits>
 #include <ctime>
+#include <sstream>
+
 
 // undo these tokens to use numeric_limits below
 #undef min
@@ -89,11 +93,31 @@ namespace mssql
         return scope.Close(backpointer);
     }
 
-
     QueryOperation::QueryOperation(shared_ptr<OdbcConnection> connection, const wstring& query, Handle<Object> callback) :
         OdbcOperation(connection, callback), 
         query(query)
     {
+    }
+
+    bool QueryOperation::ParameterErrorToUserCallback( uint32_t param, const char* error )
+    {
+        params.clear();
+
+        std::stringstream full_error;
+        full_error << "IMNOD: [msnodesql] Parameter " << param + 1 << ": " << error;
+
+        Local<Object> err = Local<Object>::Cast( Exception::Error( String::New( full_error.str().c_str() )));
+        err->Set( String::NewSymbol( "sqlstate" ), String::New( "IMNOD" ));
+        err->Set( String::NewSymbol( "code" ), Integer::New( -1 ));
+
+        Local<Value> args[1];
+        args[0] = err;
+        int argc = 1;
+
+        // this is okay because we're still on the node.js thread, not on the background thread
+        callback->Call(Context::GetCurrent()->Global(), argc, args);
+
+        return false;
     }
 
     bool QueryOperation::BindParameters( Handle<Array> node_params )
@@ -109,6 +133,7 @@ namespace mssql
 
                 if( p->IsNull() ) {
 
+                    binding.js_type = ParamBinding::JS_NULL;
                     binding.c_type = SQL_C_CHAR;
                     binding.sql_type = SQL_CHAR;
                     binding.param_size = 1;
@@ -119,6 +144,7 @@ namespace mssql
                 }
                 else if( p->IsString() ) {
 
+                    binding.js_type = ParamBinding::JS_STRING;
                     binding.c_type = SQL_C_WCHAR;
                     binding.sql_type = SQL_WVARCHAR;
                     Local<String> str_param = p->ToString();
@@ -137,6 +163,7 @@ namespace mssql
                 }
                 else if( p->IsBoolean() ) {
                     
+                    binding.js_type = ParamBinding::JS_BOOLEAN;
                     binding.c_type = SQL_C_BIT;
                     binding.sql_type = SQL_BIT;
                     binding.buffer = new uint16_t;
@@ -148,6 +175,7 @@ namespace mssql
                 }
                 else if( p->IsInt32()) {
 
+                    binding.js_type = ParamBinding::JS_INT;
                     binding.c_type = SQL_C_SLONG;
                     binding.sql_type = SQL_INTEGER;
                     binding.buffer = new int32_t;
@@ -159,6 +187,7 @@ namespace mssql
                 }
                 else if( p->IsUint32()) {
 
+                    binding.js_type = ParamBinding::JS_UINT;
                     binding.c_type = SQL_C_ULONG;
                     binding.sql_type = SQL_BIGINT;
                     binding.buffer = new uint32_t;
@@ -175,21 +204,14 @@ namespace mssql
                     double d = p->NumberValue();
                     if( _isnan( d ) || !_finite( d ) ) {
 
-                        params.clear();
+                        return ParameterErrorToUserCallback( i, "Invalid number parameter" );
 
-                        int argc = 1;
-                        Local<Value> args[1];
-                        args[0] = Exception::Error( String::New( "IMNOD: [msnodesql]Invalid number parameter" ) );
-
-                        // this is okay because we're still on the node.js thread, not on the background thread
-                        callback->Call(Undefined().As<Object>(), argc, args);
-
-                        return false;
                     }
                     else if( d == floor( d ) && 
                              d >= std::numeric_limits<int64_t>::min() && 
                              d <= std::numeric_limits<int64_t>::max() ) {
 
+                        binding.js_type = ParamBinding::JS_NUMBER;
                         binding.c_type = SQL_C_SBIGINT;
                         binding.sql_type = SQL_BIGINT;
                         binding.buffer = new int64_t;
@@ -201,6 +223,7 @@ namespace mssql
                     }
                     else {
 
+                        binding.js_type = ParamBinding::JS_NUMBER;
                         binding.c_type = SQL_C_DOUBLE;
                         binding.sql_type = SQL_DOUBLE;
                         binding.buffer = new double;
@@ -214,7 +237,6 @@ namespace mssql
                 else if( p->IsDate() ) {
 
                     // Since JS dates have no timezone context, all dates are assumed to be UTC
-                    struct tm tm;
                     Handle<Date> dateObject = Handle<Date>::Cast<Value>( p );
                     assert( !dateObject.IsEmpty() );
                     // dates in JS are stored internally as ms count from Jan 1, 1970
@@ -223,6 +245,7 @@ namespace mssql
                     TimestampColumn sql_date( d );
                     sql_date.ToTimestampOffset( *sql_tm );
 
+                    binding.js_type = ParamBinding::JS_DATE;
                     binding.c_type = SQL_C_BINARY;
                     // TODO: Determine proper SQL type based on version of server we're talking to
                     binding.sql_type = SQL_SS_TIMESTAMPOFFSET;
@@ -233,20 +256,28 @@ namespace mssql
                     binding.digits = SQL_SERVER_2008_DEFAULT_DATETIME_SCALE;
                     binding.indptr = binding.buffer_len;
                 }
+                else if( p->IsObject() && node::Buffer::HasInstance( p )) {
+
+                    // TODO: Determine if we need something to keep the Buffer object from going
+                    // away while we use it we could just copy the data, but with buffers being 
+                    // potentially very large, that could be problematic
+                    Local<Object> o = p.As<Object>();
+                    
+                    binding.js_type = ParamBinding::JS_BUFFER;
+                    binding.c_type = SQL_C_BINARY;
+                    binding.sql_type = SQL_VARBINARY;
+                    binding.buffer = node::Buffer::Data( o );
+                    binding.buffer_len = node::Buffer::Length( o );
+                    binding.param_size = binding.buffer_len;
+                    binding.digits = 0;
+                    binding.indptr = binding.buffer_len;
+                }
+
                 else {
 
-                    params.clear();
 
-                    int argc = 2;
-                    Local<Value> args[2];
-                    args[0] = Local<Value>::New(Boolean::New(true));
-                    // TODO: Change this to return an object with 3 keys, message, sqlstate and code from the OdbcError
-                    args[1] = Exception::Error( String::New( "IMNOD: [msnodesql]Invalid parameter type" ) );
+                    return ParameterErrorToUserCallback( i, "Invalid parameter type" );
 
-                    // this is okay because we're still on the node.js thread, not on the background thread
-                    callback->Call(Undefined().As<Object>(), argc, args);
-
-                    return false;
                 }
 
                 params.push_back( move( binding ));
