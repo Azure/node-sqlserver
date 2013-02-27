@@ -51,6 +51,7 @@ suite('compoundqueries', function () {
         var testcolumnsize = 100;
         var testcolumntype = " varchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "string data row 2";
@@ -59,8 +60,8 @@ suite('compoundqueries', function () {
 
         var expected1 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, null],
     [2, testdata2Expected]]
@@ -75,8 +76,8 @@ suite('compoundqueries', function () {
 
         var expected3 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, null],
     [2, testdata2Expected],
@@ -105,6 +106,7 @@ suite('compoundqueries', function () {
         var testcolumnsize = 100;
         var testcolumntype = " varchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "string data row 2";
@@ -113,8 +115,8 @@ suite('compoundqueries', function () {
 
         var expected1 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, null],
     [2, testdata2Expected]]
@@ -149,6 +151,7 @@ suite('compoundqueries', function () {
         var testcolumnsize = 100;
         var testcolumntype = " varchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "string data row 2";
@@ -157,8 +160,8 @@ suite('compoundqueries', function () {
 
         var expected1 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, null],
     [2, testdata2Expected]]
@@ -166,8 +169,8 @@ suite('compoundqueries', function () {
 
         var expected2 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     []
         };
@@ -195,6 +198,7 @@ suite('compoundqueries', function () {
         var testcolumnsize = 100;
         var testcolumntype = " varchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "string data row 2";
@@ -203,8 +207,8 @@ suite('compoundqueries', function () {
 
         var expected1 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, null],
     [2, testdata2Expected]]
@@ -212,8 +216,8 @@ suite('compoundqueries', function () {
 
         var expected2 = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     []
         };

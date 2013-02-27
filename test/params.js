@@ -116,7 +116,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT null_test FROM null_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'null_test', size: 1, nullable: true, type: 'text' } ],
+                    var expected = { meta: [ { name: 'null_test', size: 1, nullable: true, type: 'text', sqlType: 'varchar' } ],
                                      rows: [[null]] };
                     assert.deepEqual( expected, r );
                     done();
@@ -140,7 +140,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT string_test FROM string_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'string_test', size: 100, nullable: true, type: 'text' } ],
+                    var expected = { meta: [ { name: 'string_test', size: 100, nullable: true, type: 'text', sqlType: 'nvarchar' } ],
                                      rows: [ [ 'This is a test' ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -163,7 +163,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT bool_test FROM bool_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'bool_test', size: 1, nullable: true, type: 'boolean' } ],
+                    var expected = { meta: [ { name: 'bool_test', size: 1, nullable: true, type: 'boolean', sqlType: 'bit' } ],
                                      rows: [ [ true ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -186,8 +186,8 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT int_test FROM int_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'int_test', size: 10, nullable: true, type: 'number' } ],
-                                     rows: [ [ 2147483647 ] ] };
+                    var expected = { meta: [ { name: 'int_test', size: 10, nullable: true, type: 'number', sqlType: 'int' } ],
+                                    rows: [ [ 2147483647 ] ] };
                     assert.deepEqual( expected, r );
                     done();
                 });
@@ -209,7 +209,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT int_test FROM int_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'int_test', size: 10, nullable: true, type: 'number' } ],
+                    var expected = { meta: [ { name: 'int_test', size: 10, nullable: true, type: 'number', sqlType: 'int' } ],
                                      rows: [ [ -2147483648 ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -232,7 +232,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT bigint_test FROM bigint_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'bigint_test', size: 19, nullable: true, type: 'number' } ],
+                    var expected = { meta: [ { name: 'bigint_test', size: 19, nullable: true, type: 'number', sqlType: 'bigint' } ],
                                      rows: [ [ 0x80000000 ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -255,7 +255,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT bigint_test FROM bigint_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'bigint_test', size: 19, nullable: true, type: 'number' } ],
+                    var expected = { meta: [ { name: 'bigint_test', size: 19, nullable: true, type: 'number', sqlType: 'bigint' } ],
                                      rows: [ [ 0x4fffffffffffffff ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -279,7 +279,7 @@ suite( 'params', function() {
                 c.queryRaw( "SELECT decimal_test FROM decimal_param_test", function( e, r ) {
 
                     assert.ifError( e );
-                    var expected = { meta: [ { name: 'decimal_test', size: 18, nullable: true, type: 'number' } ],
+                    var expected = { meta: [ { name: 'decimal_test', size: 18, nullable: true, type: 'number', sqlType: 'decimal' } ],
                                      rows: [ [ 3.141593 ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -307,7 +307,7 @@ suite( 'params', function() {
                                        [ { name: 'decimal_bigint',
                                            size: 19,
                                            nullable: true,
-                                           type: 'number' } ],
+                                           type: 'number', sqlType: 'bigint' } ],
                                       rows: [ [ 123456789 ] ] };
                     assert.deepEqual( expected, r );
                     done();
@@ -438,7 +438,7 @@ suite( 'params', function() {
 
                     assert.ifError( e );
 
-                    var expected =  { meta: [ { name: 'f', size: 53, nullable: true, type: 'number' } ],
+                    var expected =  { meta: [ { name: 'f', size: 53, nullable: true, type: 'number', sqlType: 'float' } ],
                                       rows: [ [ 1.7976931348623157e+308 ], [ -1.7976931348623157e+308 ] ] };
 
                     assert.deepEqual( r, expected, "minmax results don't match" );
@@ -590,7 +590,7 @@ suite( 'params', function() {
 
   // verify fix for a bug that would return the wrong day when a datetimeoffset was inserted where the date
   // was before 1/1/1970 and the time was midnight.
-  test( 'verify bug fix for dates older than 1/1/1970 with midnight time', function( test_done ) {
+  test( 'verify dates with midnight time', function( test_done ) {
     sql.open( conn_str, function( err, conn ) {
 
         assert.ifError( err );
@@ -618,7 +618,7 @@ suite( 'params', function() {
                     var expectedDates = [];
                     var expectedDate = midnightDate
                     expectedDates.push( [ expectedDate ]);
-                    var expectedResults = { meta: [ { name: 'midnight_date_test', size: 30, nullable: true, type: 'date' } ],
+                    var expectedResults = { meta: [ { name: 'midnight_date_test', size: 30, nullable: true, type: 'date', sqlType: 'datetimeoffset' } ],
                         rows: expectedDates 
                     };
                     assert.deepEqual( expectedResults.meta, r.meta );
@@ -663,7 +663,7 @@ suite( 'params', function() {
                     var expectedDates = [];
                     var expectedDate = eoyDate;
                     expectedDates.push( [ expectedDate ]);
-                    var expectedResults = { meta: [ { name: 'eoy_date_test', size: 30, nullable: true, type: 'date' } ],
+                    var expectedResults = { meta: [ { name: 'eoy_date_test', size: 30, nullable: true, type: 'date', sqlType: 'datetimeoffset' } ],
                         rows: expectedDates 
                     };
                     assert.deepEqual( expectedResults.meta, r.meta );

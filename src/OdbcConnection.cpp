@@ -109,8 +109,23 @@ namespace mssql
             vector<wchar_t> buffer(nameLength+1);
             ret = SQLDescribeCol(statement, column + 1, buffer.data(), nameLength+1, &nameLength, &current.dataType, &current.columnSize, &current.decimalDigits, &current.nullable);
             CHECK_ODBC_ERROR( ret, statement );
-
             current.name = wstring(buffer.data(), nameLength);
+
+            wchar_t typeName[1024];
+            SQLSMALLINT typeNameLen;
+            ret = SQLColAttribute( statement, column + 1, SQL_DESC_TYPE_NAME, typeName, 1024*sizeof(wchar_t),
+                 &typeNameLen, NULL );
+            CHECK_ODBC_ERROR( ret, statement );
+            current.dataTypeName = wstring( typeName, typeNameLen );
+
+            if( current.dataType == SQL_SS_UDT ) {
+                wchar_t udtTypeName[1024];
+                SQLSMALLINT udtTypeNameLen;
+                ret = SQLColAttribute( statement, column + 1, SQL_CA_SS_UDT_TYPE_NAME, udtTypeName, 1024*sizeof(wchar_t),
+                     &udtTypeNameLen, NULL );
+                CHECK_ODBC_ERROR( ret, statement );
+                current.udtTypeName = wstring(udtTypeName, udtTypeNameLen );
+            }
 
             column++;
         }
@@ -288,6 +303,8 @@ namespace mssql
         case SQL_BINARY:
         case SQL_VARBINARY:
         case SQL_LONGVARBINARY:
+        case SQL_SS_UDT:
+
             {
                 bool more = false;
                 vector<char> buffer(2048);

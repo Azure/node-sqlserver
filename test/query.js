@@ -19,6 +19,8 @@
 
 var sql = require('../');
 
+var buffer=require('buffer');
+
 var assert = require( 'assert' );
 var async = require( 'async' );
 
@@ -52,9 +54,9 @@ suite('query', function () {
             var buffer = new Buffer('0123456789abcdef', 'hex');
 
             var expected = { meta:
-                             [{ name: 'X', size: 10, nullable: false, type: 'number' },
-                               { name: '', size: 3, nullable: false, type: 'text' },
-                               { name: '', size: 8, nullable: false, type: 'binary'}],
+                             [{ name: 'X', size: 10, nullable: false, type: 'number', sqlType: 'int' },
+                               { name: '', size: 3, nullable: false, type: 'text', sqlType: 'varchar' },
+                               { name: '', size: 8, nullable: false, type: 'binary', sqlType: 'varbinary' }],
                 rows: [[1, 'ABC', buffer]]
             }
 
@@ -87,7 +89,7 @@ suite('query', function () {
 
         var like = 'var%';
         var current_row = 0;
-        var meta_expected = [{ name: 'name', size: 128, nullable: false, type: 'text'}];
+        var meta_expected = [{ name: 'name', size: 128, nullable: false, type: 'text', sqlType: 'nvarchar'}];
 
         var stmt = sql.query(conn_str, 'select name FROM sys.types WHERE name LIKE ?', [like]);
 
@@ -100,19 +102,19 @@ suite('query', function () {
 
     test('serialized queries', function (done) {
 
-        var expected = [{ meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+        var expected = [{ meta: [{ name: '', size: 10, nullable: false, type: 'number', sqlType: 'int' }],
             rows: [[1]]
         },
-                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number', sqlType: 'int' }],
                              rows: [[2]]
                          },
-                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number', sqlType: 'int' }],
                              rows: [[3]]
                          },
-                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number', sqlType: 'int' }],
                              rows: [[4]]
                          },
-                         { meta: [{ name: '', size: 10, nullable: false, type: 'number'}],
+                         { meta: [{ name: '', size: 10, nullable: false, type: 'number', sqlType: 'int' }],
                              rows: [[5]]
                          }];
 
@@ -223,9 +225,9 @@ suite('query', function () {
 
                     var buffer = new Buffer('0123456789abcdef', 'hex');
                     var expected = { meta:
-                                     [ { name: 'X', size: 10, nullable: false, type: 'number' },
-                                       { name: '', size: 3, nullable: false, type: 'text' },
-                                       { name: '', size: 8, nullable: false, type: 'binary' } ],
+                                     [ { name: 'X', size: 10, nullable: false, type: 'number', sqlType: 'int' },
+                                       { name: '', size: 3, nullable: false, type: 'text', sqlType: 'varchar' },
+                                       { name: '', size: 8, nullable: false, type: 'binary', sqlType: 'varbinary' } ],
                                      rows: [ [ 1, 'ABC', buffer ] ] };
 
                     assert.deepEqual( results, expected, "Result 1 does not match expected" );
@@ -237,9 +239,9 @@ suite('query', function () {
 
                     var buffer = new Buffer('fedcba9876543210', 'hex');
                     var expected = { meta:
-                                     [ { name: 'Y', size: 10, nullable: false, type: 'number' },
-                                       { name: '', size: 3, nullable: false, type: 'text' },
-                                       { name: '', size: 8, nullable: false, type: 'binary' } ],
+                                     [ { name: 'Y', size: 10, nullable: false, type: 'number', sqlType: 'int' },
+                                       { name: '', size: 3, nullable: false, type: 'text', sqlType: 'varchar' },
+                                       { name: '', size: 8, nullable: false, type: 'binary', sqlType: 'varbinary' } ],
                                      rows: [ [ 2, 'DEF', buffer ] ] };
 
                     assert.deepEqual( results, expected, "Result 2 does not match expected" );
@@ -254,18 +256,18 @@ suite('query', function () {
 
         var r = sql.queryRaw( conn_str, "SELECT 1 as X, 'ABC', 0x0123456789abcdef; SELECT 2 AS Y, 'DEF', 0xfedcba9876543210" );
 
-        var expected = [ [ { name: 'X', size: 10, nullable: false, type: 'number' },
-                           { name: '', size: 3, nullable: false, type: 'text' },
-                           { name: '', size: 8, nullable: false, type: 'binary' } ],
+        var expected = [ [ { name: 'X', size: 10, nullable: false, type: 'number', sqlType: 'int' },
+                           { name: '', size: 3, nullable: false, type: 'text', sqlType: 'varchar' },
+                           { name: '', size: 8, nullable: false, type: 'binary', sqlType: 'varbinary' } ],
                          { row: 0 },
                          { column: 0, data: 1, more: false },
                          { column: 1, data: 'ABC', more: false },
                          { column: 2,
                            data: new Buffer('0123456789abcdef', 'hex'),
                            more: false },
-                         [ { name: 'Y', size: 10, nullable: false, type: 'number' },
-                           { name: '', size: 3, nullable: false, type: 'text' },
-                           { name: '', size: 8, nullable: false, type: 'binary' } ],
+                         [ { name: 'Y', size: 10, nullable: false, type: 'number', sqlType: 'int'  },
+                           { name: '', size: 3, nullable: false, type: 'text', sqlType: 'varchar' },
+                           { name: '', size: 8, nullable: false, type: 'binary', sqlType: 'varbinary' } ],
                          { row: 1 },
                          { column: 0, data: 2, more: false },
                          { column: 1, data: 'DEF', more: false },
@@ -288,8 +290,8 @@ suite('query', function () {
 
                                   assert.ifError( err );
 
-                                  var expected = { meta: [ { name: 'bit_true', size: 1, nullable: true, type: 'boolean' },
-                                                   { name: 'bit_false', size: 1, nullable: true, type: 'boolean' } ],
+                                  var expected = { meta: [ { name: 'bit_true', size: 1, nullable: true, type: 'boolean', sqlType: 'bit' },
+                                                   { name: 'bit_false', size: 1, nullable: true, type: 'boolean', sqlType: 'bit' } ],
                                                    rows: [ [ true, false ] ] };
                                   assert.deepEqual( results, expected, "Results didn't match" );
                                   done();
@@ -591,4 +593,61 @@ suite('query', function () {
         });
     });
 
+    test( 'verify metadata is retrieved for udt/geography types', function( test_done ) {
+
+        async.series( [
+
+            function( async_done ) {
+
+                sql.query( conn_str, "DROP TABLE spatial_test", function( e, r ) { async_done(); });
+            },
+            function( async_done ) {
+
+                sql.query( conn_str, "CREATE TABLE spatial_test ( id int IDENTITY (1,1), GeogCol1 geography, GeogCol2 AS GeogCol1.STAsText() )", function( e, r ) {
+
+                    assert.ifError( e );
+                    async_done();
+                });
+            },
+            function( async_done ) {
+                sql.query( conn_str, "INSERT INTO spatial_test (GeogCol1) VALUES (geography::STGeomFromText('LINESTRING(-122.360 47.656, -122.343 47.656 )', 4326))", function( e, r ) {
+
+                    assert.ifError( e );
+                    async_done();
+                });
+            },
+            function( async_done ) {
+                sql.query( conn_str, "INSERT INTO spatial_test (GeogCol1) VALUES (geography::STGeomFromText('POLYGON((-122.358 47.653 , -122.348 47.649, -122.348 47.658, -122.358 47.658, -122.358 47.653))', 4326))", function( e, r ) {
+
+                    assert.ifError( e );
+                    async_done();
+                });
+            },
+            function( async_done ) {
+                sql.queryRaw( conn_str, "SELECT GeogCol1 FROM spatial_test", function( e, r ) {
+
+                    assert.ifError( e );
+
+                    var expectedResults = { 
+                        meta:
+                           [ { name: 'GeogCol1',
+                               size: 0,
+                               nullable: true,
+                               type: 'text',
+                               sqlType: 'udt',
+                               udtType: 'geography' } ],
+                        rows:
+                           [ [ new Buffer( 'e610000001148716d9cef7d34740d7a3703d0a975ec08716d9cef7d34740cba145b6f3955ec0', 'hex' ) ],
+                             [ new Buffer( 'e6100000010405000000dd24068195d34740f4fdd478e9965ec0508d976e12d3474083c0caa145965ec04e62105839d4474083c0caa145965ec04e62105839d44740f4fdd478e9965ec0dd24068195d34740f4fdd478e9965ec001000000020000000001000000ffffffff0000000003', 'hex' ) ]
+                            ]
+                    };
+
+                    assert.deepEqual( r, expectedResults, "udt results don't match" );
+
+                    async_done();
+                    test_done();
+                });
+            }
+        ]);
+    });
 });

@@ -35,8 +35,10 @@ namespace mssql
             wstring name;
             SQLULEN columnSize;
             SQLSMALLINT dataType;
+            wstring dataTypeName;
             SQLSMALLINT decimalDigits;
             SQLSMALLINT nullable;
+            wstring udtTypeName;
         };
 
         ResultSet(int columns) 

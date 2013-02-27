@@ -454,6 +454,7 @@ suite('datatypes', function () {
         var testcolumnsize = 0;
         var testcolumntype = " varchar(" + "max" + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "string data row 2";
@@ -461,8 +462,8 @@ suite('datatypes', function () {
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -492,6 +493,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 0;
         var testcolumntype = " varchar(" + "max" + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var A100CharacterString = "0234567890123456789022345678903234567890423456789052345678906234567890723456789082345678909234567890";
@@ -501,8 +503,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-        [{ name: 'id', size: 10, nullable: false, type: 'number' },
-        { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+        [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+        { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype}],
             rows:
         [[1, testdata1],
         [2, testdata2Expected]]
@@ -532,6 +534,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 0;
         var testcolumntype = " nvarchar(" + "max" + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "nvarchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var A100CharacterString = "0234567890123456789022345678903234567890423456789052345678906234567890723456789082345678909234567890";
@@ -541,8 +544,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-        [{ name: 'id', size: 10, nullable: false, type: 'number' },
-        { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+        [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+        { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
         [[1, testdata1],
         [2, testdata2Expected]]
@@ -578,8 +581,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-                [{ name: 'id', size: 10, nullable: false, type: 'number' },
-                { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+                [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+                { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
                 [[1, testdata1],
                 [2, testdata2Expected]]
@@ -619,8 +622,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -656,8 +659,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -693,8 +696,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -730,8 +733,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -772,8 +775,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -810,8 +813,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var expected =
     {
         meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
         rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -847,6 +850,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 7;
         var testcolumntype = " numeric(7,3)";
         var testcolumnclienttype = "number";
+        var testcolumnsqltype = "numeric";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = 1234.567;
@@ -854,8 +858,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -884,6 +888,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 7;
         var testcolumntype = " decimal(7,3)";
         var testcolumnclienttype = "number";
+        var testcolumnsqltype = "decimal";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = 1234.567;
@@ -891,8 +896,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -928,8 +933,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, true]]
@@ -958,6 +963,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 53;
         var testcolumntype = " float(53)";
         var testcolumnclienttype = "number";
+        var testcolumnsqltype = "float";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "1.79E+308";
@@ -965,8 +971,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1002,8 +1008,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1032,6 +1038,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 10;
         var testcolumntype = " binary(" + testcolumnsize + ")";
         var testcolumnclienttype = "binary";
+        var testcolumnsqltype = "binary";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2TsqlInsert = 0x0123;
@@ -1040,8 +1047,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, binary_buffer]]
@@ -1070,6 +1077,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 10;
         var testcolumntype = " varbinary(" + testcolumnsize + ")";
         var testcolumnclienttype = "binary";
+        var testcolumnsqltype = "varbinary";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2TsqlInsert = 0x0123;
@@ -1078,8 +1086,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, binary_buffer]]
@@ -1108,14 +1116,15 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 0;
         var testcolumntype = " varbinary(" + "max" + ")";
         var testcolumnclienttype = "binary";
+        var testcolumnsqltype = "varbinary";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2TsqlInsert = "CONVERT(varbinary(max), 0x0123456789AB)";
         var binary_buffer = new Buffer('0123456789AB', 'hex');
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, binary_buffer]]
@@ -1152,8 +1161,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, binary_buffer]]
@@ -1189,8 +1198,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-                [{ name: 'id', size: 10, nullable: false, type: 'number' },
-                { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+                [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+                { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
                 [[1, testdata1],
                 [2, testdata2Expected]]
@@ -1223,6 +1232,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 10;
         var testcolumntype = " char(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "char";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "char data ";
@@ -1230,8 +1240,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1260,6 +1270,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 20;
         var testcolumntype = " varchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "varchar data";
@@ -1267,8 +1278,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: "int identity" },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1297,6 +1308,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 0;
         var testcolumntype = " varchar(" + "max" + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "varchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "varchar_max data";
@@ -1304,8 +1316,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1341,8 +1353,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1371,6 +1383,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 10;
         var testcolumntype = " nchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "nchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "char data ";
@@ -1378,8 +1391,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1408,6 +1421,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 20;
         var testcolumntype = " nvarchar(" + testcolumnsize + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "nvarchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "nvarchar data";
@@ -1415,8 +1429,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1445,6 +1459,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 0;
         var testcolumntype = " nvarchar(" + "max" + ")";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "nvarchar";
         var testcolumnname = "col2";
         var testdata1 = null;
         var testdata2Expected = "nvarchar_max data";
@@ -1452,8 +1467,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1489,8 +1504,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
 
         var expected = {
             meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: true, type: testcolumnclienttype, sqlType: testcolumntype.trim() }],
             rows:
     [[1, testdata1],
     [2, testdata2Expected]]
@@ -1519,6 +1534,7 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var testcolumnsize = 128;
         var testcolumntype = " sysname";
         var testcolumnclienttype = "text";
+        var testcolumnsqltype = "nvarchar";
         var testcolumnname = "col2";
         var testdata1Expected = "";
         var testdata1TsqlInsert = "'" + testdata1Expected + "'";
@@ -1528,8 +1544,8 @@ testname = 'test 008_bndryCheck_VC - insert 2048 char string into varchar(max) v
         var expected =
     {
         meta:
-    [{ name: 'id', size: 10, nullable: false, type: 'number' },
-    { name: testcolumnname, size: testcolumnsize, nullable: false, type: testcolumnclienttype}],
+    [{ name: 'id', size: 10, nullable: false, type: 'number', sqlType: 'int identity' },
+    { name: testcolumnname, size: testcolumnsize, nullable: false, type: testcolumnclienttype, sqlType: testcolumnsqltype }],
         rows:
     [[1, testdata1Expected],
     [2, testdata2Expected]]

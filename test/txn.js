@@ -137,8 +137,8 @@ suite( 'txn', function() {
 
                         // verify results
                         var expected = { 'meta':
-                                         [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number' },
-                                           { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
+                                         [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number', sqlType: 'int identity' },
+                                           { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text', sqlType: 'varchar' } ],
                                          'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ] ] };
 
                         assert.deepEqual( results, expected, "Transaction not committed properly" );
@@ -185,8 +185,8 @@ suite( 'txn', function() {
 
                         // verify results
                         var expected = { 'meta':
-                                         [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number' },
-                                           { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
+                                         [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number', sqlType: 'int identity' },
+                                           { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text', sqlType: 'varchar' } ],
                                          'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ] ] };
 
                         assert.deepEqual( results, expected, "Transaction not rolled back properly" );
@@ -230,8 +230,8 @@ suite( 'txn', function() {
 
                         // verify results
                         var expected = { 'meta':
-                                         [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number' },
-                                           { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
+                                         [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number', sqlType: 'int identity' },
+                                           { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text', sqlType: 'varchar' } ],
                                          'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ] ] };
 
                         assert.deepEqual( results, expected, "Transaction not rolled back properly" );
@@ -269,8 +269,8 @@ suite( 'txn', function() {
 
             // verify results
             var expected = { 'meta':
-                             [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number' },
-                               { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text' } ],
+                             [ { 'name': 'id', 'size': 10, 'nullable': false, 'type': 'number', sqlType: 'int identity' },
+                               { 'name': 'name', 'size': 100, 'nullable': true, 'type': 'text', sqlType: 'varchar' } ],
                              'rows': [ [ 1, 'Anne' ], [ 2, 'Bob' ], [ 5, 'Anne' ], [ 6, 'Bob' ] ] };
 
             assert.deepEqual( results, expected, "Transaction not committed properly" );

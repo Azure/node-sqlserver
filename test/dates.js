@@ -86,7 +86,7 @@ suite( 'date tests', function() {
                           expectedDate.nanosecondsDelta = 0;
                           expectedDates.push( [ expectedDate ]);
                       }
-                      var expectedResults = { meta: [ { name: 'test_date', size: 10, nullable: true, type: 'date' } ],
+                      var expectedResults = { meta: [ { name: 'test_date', size: 10, nullable: true, type: 'date', sqlType: 'date' } ],
                           rows: expectedDates 
                       };
                       assert.deepEqual( expectedResults.meta, r.meta );
