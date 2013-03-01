@@ -69,6 +69,7 @@ namespace mssql
             case SQL_BINARY:
             case SQL_VARBINARY:
             case SQL_LONGVARBINARY:
+            case SQL_SS_UDT:
                 typeName = L"binary";
                 break;
             default:

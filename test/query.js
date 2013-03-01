@@ -633,7 +633,7 @@ suite('query', function () {
                            [ { name: 'GeogCol1',
                                size: 0,
                                nullable: true,
-                               type: 'text',
+                               type: 'binary',
                                sqlType: 'udt',
                                udtType: 'geography' } ],
                         rows:
