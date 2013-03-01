@@ -34,5 +34,32 @@ suite( 'open', function() {
                       done();
                   });
     });
+
+    test('verify connection is closed after a query', function( done ) {
+
+    	sql.open( config.conn_str, function( err, conn ) {
+
+			assert.ifError( err );
+
+			conn.close();
+			var thrown = false;
+
+			try {
+				conn.query( "SELECT 1", function( err, results ) {
+
+					assert.ifError( err )
+
+				});
+			}
+			catch( e ) {
+
+				assert( e == "Error: [msnodesql] Connection is closed.")
+				thrown = true;
+			}
+
+			assert( thrown );
+			done();
+    	});
+    })
 });
 
