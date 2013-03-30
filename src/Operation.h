@@ -35,7 +35,7 @@ public:
     static bool Add(Operation* operation)
     {
         operation->work.data = operation;
-        int result = uv_queue_work(uv_default_loop(), &operation->work, OnBackground, OnForeground);
+        int result = uv_queue_work(uv_default_loop(), &operation->work, OnBackground, (uv_after_work_cb)OnForeground);
         if( result != 0 )
         {
             operation->last_error = uv_last_error( uv_default_loop() ) ;
