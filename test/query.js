@@ -435,6 +435,19 @@ suite('query', function () {
         stmt.on('error', function( e ) { assert.ifError( e ) });
      });
        
+    test('test login failure', function (done) {
+        // construct a connection string that will fail due to
+        // the database not existing
+        var badConnection = conn_str.replace('Database={' + config.database + '}', 'Database={DNE}');
+
+        sql.query(badConnection, 'SELECT 1 as X', function (err, results) {
+            // verify we get the expected error when the login fails
+            assert.ok(err.message.indexOf('Login failed for user') > 0);
+            assert.equal(err.sqlstate, 28000);
+            done();
+        });
+    });
+
     test( 'test function parameter validation', function( test_done ) {
 
         // test the module level open, query and queryRaw functions

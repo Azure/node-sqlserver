@@ -27,6 +27,7 @@ var useTrustedConnection = true;
 var conn_str = "Driver={" + driver + "};Server=" + server + ";" + (useTrustedConnection == true ? "Trusted_Connection={Yes};" : "UID=" + user + ";PWD=" + pwd + ";") + "Database={" + database + "};";
 
 // The following need to be exported for building connection strings within a test...
+exports.database = database;
 exports.server = server;
 exports.user = user;
 exports.pwd = pwd;
