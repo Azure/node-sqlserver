@@ -16,35 +16,15 @@ feedback, fixes and contributions from the community at this very early stage.
 The following prerequisites are necessary prior to using the driver:
 
 * Node.js - use the latest version if possible, but it has been tested on node
-0.6.10 and later
+0.8.x
 
-* node-gyp - latest version installed globally (npm install -g node-gyp)
+Next install the msnodesql driver
 
-* python 2.7.x - for node-gyp (make sure it is in the path)
+1. Download the msnodesql driver by using the command ‘npm install msnodesql’.  This will install Microsoft’s NodeJS-SQL driver into your project. You should now have a folder called msnodesql inside node_modules. Note: This will only work with Node 0.8.9. If you had newer versions, you will have to downgrade.
 
-* Visual C++ 2010 - the Express edition is freely available from 
-[Microsoft][visualstudio]
 
-* SQL Server Native Client 11.0 - available as Microsoft SQL Server 2012 
-Native Client found in the [SQL Server 2012 Feature Pack][sqlncli]
+2. Next go to the file explorer and naviage to the the C:\NodeJSSampleProject\node_modules\msnodesql folder and run the executable(.msi file). Note: You will need Visual C++ 2010 Express before you run the executable. This can be downloaded from [here](https://app.vssps.visualstudio.com/profile/review?download=true&amp;family=VisualStudioCExpress&amp;release=VisualStudio2010&amp;type=web&amp;slcid=0x409&amp;context=eyJwZSI6MSwicGMiOjEsImljIjoxLCJhbyI6MCwiYW0iOjEsIm9wIjpudWxsLCJhZCI6bnVsbCwiZmEiOjAsImF1IjpudWxsLCJjdiI6OTY4OTg2MzU1LCJmcyI6MCwic3UiOjAsImVyIjoxfQ2). 
 
-## Build
-
-To build the driver, first node-gyp must configure the appropriate build files.
-
-    node-gyp configure
-
-Use node-gyp to build the driver:
-
-    node-gyp build
-
-Or to build the debug version:
-
-    node-gyp build --debug
-
-Then copy the sqlserver.node file from the build\\(Release|Debug) directory to
-the lib directory.  If you would like to use Visual C++ to debug the driver,
-also copy the sqlserver.pdb file from the same directory.
 
 ## Test
 
@@ -83,6 +63,7 @@ The Microsoft Driver for Node.js for SQL Server is licensed under the Apache
 [issues]: https://github.com/windowsazure/node-sqlserver/issues
 
 [contribute]: https://github.com/WindowsAzure/node-sqlserver/blob/master/CONTRIBUTING.md
+
 
 
 
