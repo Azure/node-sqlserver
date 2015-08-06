@@ -15,8 +15,10 @@ feedback, fixes and contributions from the community at this very early stage.
 
 The following prerequisites are necessary prior to using the driver:
 
-* Node.js - use the latest version if possible, but it has been tested on node
-0.8.x
+* Node.js - use node.js version 0.8.x
+* [Python 2.7](https://www.python.org/download/releases/2.7/)
+* [Visual C++ 2010 Express](https://app.vssps.visualstudio.com/profile/review?download=true&amp;family=VisualStudioCExpress&amp;release=VisualStudio2010&amp;type=web&amp;slcid=0x409&amp;context=eyJwZSI6MSwicGMiOjEsImljIjoxLCJhbyI6MCwiYW0iOjEsIm9wIjpudWxsLCJhZCI6bnVsbCwiZmEiOjAsImF1IjpudWxsLCJjdiI6OTY4OTg2MzU1LCJmcyI6MCwic3UiOjAsImVyIjoxfQ2)
+ 
 
 Next install the msnodesql driver
 
