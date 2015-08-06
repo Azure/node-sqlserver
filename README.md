@@ -1,3 +1,7 @@
+# Note
+
+This driver is currenly dormant. We are planning on releasing a new version on Windows and Linux in the coming months. Stay tuned. This driver is a native C driver that uses the Microsoft ODBC driver under the hood. If you are looking for a pure javascript driver with no dependencies please check out [Tedious](https://github.com/pekim/tedious).
+
 # Microsoft Driver for Node.js for SQL Server
 
 The Microsoft Driver for Node.js for SQL Server allows Node.js applications on
